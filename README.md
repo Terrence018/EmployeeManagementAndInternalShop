@@ -1,0 +1,2 @@
+# EmployeeManagementAndInternalShop
+員工管理與內部商城系統
