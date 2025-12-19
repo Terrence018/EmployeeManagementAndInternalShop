@@ -9,14 +9,14 @@
 ### Backend (後端)
 * **核心框架:** Spring Boot 3.x
 * **資料庫:** MySQL 8.0
-* **ORM:** Mybatis / Mybatis-Plus (依你實際情況調整)
+* **ORM:** Mybatis 
 * **安全與權限:** JWT (JSON Web Token), Filter, Interceptor
 * **工具:** Maven, Lombok, DataGrip
 
 ### Frontend (前端)
 * **框架:** Vue.js
 * **HTTP 請求:** Axios
-* **UI 組件庫:** Element UI (或是你用的其他庫)
+* **UI 組件庫:** Element Plus 
 
 ## ✨ 核心功能 (Key Features)
 
@@ -32,7 +32,7 @@
 
 * **🔒 安全機制**
     * 登入驗證與 Token 管理。
-    * 敏感操作（如刪除員工）需進行 Email 驗證 (依你之前描述)。
+    * 敏感操作（如使用者編輯個人資訊）需進行 Email 驗證 。
 
 ## 🚀 快速啟動 (Quick Start)
 
@@ -45,4 +45,4 @@
 ### 2. 後端啟動 (Backend)
 ```bash
 cd empMall-backend
-# 建議使用 IDEA 開啟並執行 Main Application
+# 建議使用 IDEA 開啟並執行 EmpMallWebManagementApplication
