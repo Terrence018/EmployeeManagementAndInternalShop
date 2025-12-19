@@ -1,7 +1,7 @@
 # 員工管理與內部商城系統 (Employee Management & Internal Mall System)
 
 ## 📖 專案簡介
-這是一個基於 **SpringBoot** 與 **Vue.js** 開發的前後端分離系統，為職訓局 Java 班的畢業專題作品。
+這是一個基於 **SpringBoot** 與 **Vue.js** 開發的前後端分離系統。
 系統主要功能包含企業內部的員工資訊管理（CRUD）、權限控管（RBAC），以及一個完整的內部點數兌換商城，模擬企業福利系統的運作流程。
 
 ## 🛠️ 技術棧 (Tech Stack)
