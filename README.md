@@ -11,7 +11,7 @@
 * **資料庫:** MySQL 8.0
 * **ORM:** Mybatis 
 * **安全與權限:** JWT (JSON Web Token), Filter, Interceptor
-* **工具:** Maven, Lombok, DataGrip
+* **工具:** Maven, Lombok, DataGrip, IntelliJ IDEA
 
 ### Frontend (前端)
 * **框架:** Vue.js
