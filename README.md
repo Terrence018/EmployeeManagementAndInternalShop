@@ -101,7 +101,7 @@ empMall-frontend/
 3. 執行 empMall-backend/sql/ 目錄下的 SQL 腳本，完成資料表結構與預設數據的匯入。
 
 ### Step 2: 啟動後端 (Backend)
-1. 使用 IntelliJ IDEA 開啟 empMall-backend 目錄。
+1. 使用 IntelliJ IDEA 開啟 empMall-backend 中的 emp_mall 目錄。
 
 2. 等待 Maven 下載依賴完成。
 
