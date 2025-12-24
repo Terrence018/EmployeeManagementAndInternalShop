@@ -116,9 +116,14 @@ empMall-frontend/
 ### Step 3: 啟動前端 (Frontend)
 前端有獨立的詳細說明文件，請進入目錄操作：
 
+重要設定： 在 empMall-frontend 根目錄下建立 .env 檔案，並設定 Google Maps API Key（詳細格式請見前端 README）。
+
 ```bash
+
 cd empMall-frontend
+
 npm install
+
 npm run dev
 ```
 
