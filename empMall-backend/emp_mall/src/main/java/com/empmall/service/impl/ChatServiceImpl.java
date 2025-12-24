@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Service // 記得加這個註解，Spring 才會掃描到
+@Service
 public class ChatServiceImpl implements ChatService {
 
     @Autowired
@@ -25,7 +25,7 @@ public class ChatServiceImpl implements ChatService {
     @Override
     @Transactional
     public Long createSession(Long userId, String userName, String category, String topic) {
-        // A. 存入資料庫
+        // 存入資料庫
         ChatSession session = new ChatSession();
         session.setUserId(userId);
         session.setUserName(userName);
@@ -33,7 +33,7 @@ public class ChatServiceImpl implements ChatService {
         session.setTopic(topic);
         chatMapper.insertSession(session);
 
-        // B. 通知管理員
+        // 通知管理員
         String notification = "新工單: " + userName + " 詢問 " + category;
         messagingTemplate.convertAndSend("/topic/admin/notifications", notification);
 
@@ -62,7 +62,7 @@ public class ChatServiceImpl implements ChatService {
     @Override
     @Transactional
     public void handleChatMessage(ChatMessage message) {
-        // A. 存入資料庫
+        // 存入資料庫
         ChatMessageLog log = new ChatMessageLog();
         log.setSessionId(message.getSessionId());
         try {
@@ -74,7 +74,7 @@ public class ChatServiceImpl implements ChatService {
         log.setContent(message.getContent());
         chatMapper.insertMessage(log);
 
-        // B. 轉發
+        //  轉發
         message.setTimestamp(LocalDateTime.now());
         messagingTemplate.convertAndSend("/topic/chat/" + message.getSessionId(), message);
     }

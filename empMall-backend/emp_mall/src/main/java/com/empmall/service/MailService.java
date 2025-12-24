@@ -19,8 +19,8 @@ public class MailService {
     private String fromEmail;
 
     /**
-     * 重點：加上 @Async
-     * 這代表這個方法會被丟到「背景執行」，主程式不會等它跑完，會直接繼續往下走。
+     * @Async
+     * 代表這個方法會被丟到「背景執行」，主程式不會等它跑完，會直接繼續往下走。
      */
     @Async
     public void sendAsyncMail(String to, String subject, String content) {
@@ -32,7 +32,7 @@ public class MailService {
             helper.setSubject(subject);
             helper.setText(content, true);
 
-            mailSender.send(message); // 這裡會花 5-10 秒，但現在沒差了，因為是在背景跑
+            mailSender.send(message); // 這裡可能會花 5-10 秒，不過沒關係，先讓信去寄出
             System.out.println("【背景執行】郵件已發送至：" + to);
 
         } catch (MessagingException e) {

@@ -14,13 +14,13 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/chat")
-// @CrossOrigin // 如果你的前端在不同 Port (例如 5173)，可能需要打開這個
+// @CrossOrigin // 如果前端在不同 Port (例如 5173)，則使用
 public class ChatController {
 
     @Autowired
     private ChatService chatService;
 
-    // ================== HTTP REST API (工單流程) ==================
+    // -- HTTP REST API (工單流程) --
 
     // 1. 使用者發起工單
     // POST /api/chat/start
@@ -63,7 +63,7 @@ public class ChatController {
         chatService.closeSession(sessionId);
     }
 
-    // ================== WebSocket API (即時聊天) ==================
+    // --WebSocket API (即時聊天)--
 
     // 當前端發送訊息到 "/app/sendMessage" 時，會執行這裡
     @MessageMapping("/sendMessage")
