@@ -1,6 +1,6 @@
 # 員工管理與內部商城系統 - 後端服務 (Backend API)
 
-本專案為系統的核心後端服務，基於 **Spring Boot 3.x** 構建，提供 RESTful API 供前端調用，並透過 **WebSocket** 處理即時通訊需求。
+本專案為系統的核心後端服務，基於 **Spring Boot 3.7** 構建，提供 RESTful API 供前端調用，並透過 **WebSocket** 處理即時通訊需求。
 
 ## 🛠️ 技術細節 (Technical Details)
 
