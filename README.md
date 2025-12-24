@@ -96,7 +96,7 @@ empMall-frontend/
 ### Step 1: 資料庫設置 (Database)
 1. 請確保本地已安裝 MySQL 8.0。
 
-2. 建立一個新的資料庫（例如命名為 tlias 或參考 application.yml 設定）。
+2. 建立一個新的資料庫（例如命名為 emp_mall 或參考 application.yml 設定）。
  
 3. 執行 empMall-backend/sql/ 目錄下的 SQL 腳本，完成資料表結構與預設數據的匯入。
 
