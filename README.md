@@ -2,7 +2,7 @@
 
 ## 📖 專案簡介
 這是一個模擬企業內部福利運作的 **全端前後端分離系統**。
-除了基礎的員工資訊管理（CRUD）與 RBAC 權限控管外，本專案最大的亮點在於整合了 **WebSocket 即時通訊功能**，實現了員工與管理員之間的線上客服系統，並結合完整的 **點數商城** 與 **數據可視化** 儀表板。
+除了基礎的員工資訊管理（CRUD）與 RBAC 權限控管外，更使用了Interceptor+Filter雙重攔截驗證以確保數據安全。，本專案最大的亮點在於整合了 **WebSocket 即時通訊功能**，實現了員工與管理員之間的線上客服系統，並結合完整的 **點數商城** 與 **數據可視化** 儀表板。
 
 ## 🛠️ 技術棧 (Tech Stack)
 
@@ -12,6 +12,7 @@
 * **ORM:** Mybatis
 * **即時通訊:** **WebSocket (STOMP + SockJS)**
 * **安全驗證:** JWT (JSON Web Token), Filter, Interceptor
+* **第三方服務:** **JavaMailSender (Gmail SMTP)**
 * **工具:** Maven, Lombok, DataGrip, IntellJ IDEA
 
 ### Frontend (前端)
@@ -19,7 +20,7 @@
 * **UI 組件庫:** Element Plus
 * **HTTP 請求:** Axios (封裝攔截器)
 * **即時通訊:** `stompjs` + `sockjs-client`
-* **圖表:** Chart.js (數據統計)
+* **地圖與圖表:** **Vue3 Google Map**, Chart.js
 
 ## ✨ 核心功能 (Key Features)
 
@@ -36,11 +37,14 @@
 
 ### 3. 👥 員工與權限管理 (RBAC)
 * **權限分級**：嚴格區分 **管理員 (Role 1)** 與 **一般員工 (Role 2)** 的操作介面與 API 訪問權限。
+* **雙重資安防護**：
+   * **第一層 Filter (過濾器)**：處理跨域請求 (CORS) 與初步的請求過濾。
+   * **第二層 Interceptor (攔截器)**：深入 Spring Context，驗證 JWT Token 有效性並攔截越權操作，防止 API 被惡意調用。
 * **個人中心**：員工可查看積分歷史、修改個人資料（含 Email 驗證碼機制）。
 
 ### 4. 📊 數據統計與日誌
 * **儀表板**：圖表化顯示銷售趨勢與部門分佈。
-* **雙重日誌**：系統自動記錄關鍵操作 (Operate Log) 與業務變更。
+* **雙重日誌**：系統自動記錄關鍵操作 (Operate Log) 與業務(員工、商城)變更日誌，方便管理者隨時檢閱。
 
 ## 📂 專案結構 (Project Structure)
 
