@@ -8,7 +8,7 @@ import MapSelector from '@/components/MapSelector.vue'
 
 // 地圖相關變數
 const mapVisible = ref(false)
-const googleApiKey = 'AIzaSyAdkUQCnemI3Rs04MjfCR3POlDQudUSy_8'
+const googleApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
 
 const router = useRouter()
 

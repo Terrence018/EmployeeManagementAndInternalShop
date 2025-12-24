@@ -24,3 +24,7 @@ logs/
 # 暫存檔
 *.swp
 *~
+
+# Local env files
+.env
+.env.*
