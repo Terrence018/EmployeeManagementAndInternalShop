@@ -18,15 +18,19 @@
 代碼遵循標準的分層架構 (Layered Architecture)：
 
 ```text
-com.emp_mall
-├── config/             # 配置類 (WebSocketConfig, WebConfig, CorsConfig)
+com.empmall
+├── anno/               # 自定義註解 (如 @Log 用於日誌記錄)
+├── aop/                # AOP 切面 (處理操作日誌記錄 LogAspect)
+├── config/             # 配置類 (WebSocketConfig, WebConfig)
 ├── controller/         # 控制層 (處理 HTTP 請求與 WebSocket 訊息)
-├── service/            # 業務邏輯層 (事務控制, 複雜邏輯)
+├── exception/          # 全局異常處理 (GlobalExceptionHandler)
+├── filter/             # 過濾器 (處理跨域 CORS, 登入校驗 Filter)
+├── interceptor/        # 攔截器 (JWT 權限驗證 Interceptor)
 ├── mapper/             # 持久層 (MyBatis Interface)
 ├── pojo/               # 實體類 (Entity, DTO, VO)
-├── utils/              # 工具類 (JwtUtils, AliOSSUtils, Result)
-├── interceptor/        # 攔截器 (登入檢查 LoginCheckInterceptor)
-└── EmpMallApplication  # 啟動類
+├── service/            # 業務邏輯層 (事務控制, 複雜邏輯)
+├── utils/              # 工具類 (JwtUtils, CurrentHolder、UploadFileUtils)
+└── EmpMallWebManagementApplication  # 啟動類
 ```
 
 ## 🚀 環境配置與啟動 (Setup & Run)
@@ -64,9 +68,13 @@ mvn spring-boot:run
 ## 📡 核心功能與端點 (Endpoints)
 
 ### 🔐認證機制 (Authentication)
-本系統使用 JWT (Json Web Token) 進行無狀態認證。
+本系統採取 雙重防護機制：
+
+1. Filter (過濾器)：用於初步請求攔截。
+
+2. Interceptor (攔截器) + JWT：用於精細的權限驗證與 Token 解析。
+
 除了登入 (/login) 與註冊介面外，其餘請求均需在 Header 攜帶 token。
-並同時使用Filter與Interceptor，嚴格區分管理員與使用者，避免越權操作。
 
 ### 💬 WebSocket 配置
 Endpoint: /ws (前端連線點)
