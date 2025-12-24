@@ -2,7 +2,7 @@
 
 ## 📖 專案簡介
 這是一個模擬企業內部福利運作的 **全端前後端分離系統**。
-除了基礎的員工資訊管理（CRUD）與 商品管理（CRUD)外，更使用了 **Interceptor** + **Filter** 雙重攔截驗證，以達成 RBAC權限控管 確保數據安全。本專案整合了 **WebSocket 即時通訊功能**，實現了員工與管理員之間的線上客服系統，且結合 **點數商城** 與 **數據可視化** 儀表板 以及 **日誌記錄**，為一個 SpringBoot+Vue+MySQL 的功能完整專案。
+除了基礎的員工資訊管理（CRUD）與 商品管理（CRUD)外，更使用了 **Interceptor** + **Filter** 雙重攔截驗證，以達成 RBAC權限控管 確保數據安全。本專案整合了 **WebSocket 即時通訊功能**，實現了員工與管理員之間的線上客服系統，且結合 **點數商城** 與 **數據可視化** 儀表板 以及 **日誌記錄**，為一個功能完整的 SpringBoot+Vue+MySQL 專案。
 
 ## 🛠️ 技術棧 (Tech Stack)
 
@@ -13,7 +13,7 @@
 * **即時通訊:** **WebSocket (STOMP + SockJS)**
 * **安全驗證:** JWT (JSON Web Token), Filter, Interceptor
 * **雲端與第三方服務:** **AWS S3(儲存圖片)** 、 **JavaMailSender (Gmail SMTP)**
-* **工具:** Maven, Lombok, DataGrip, IntellJ IDEA
+* **工具:** Maven, Lombok, DataGrip, IntelliJ IDEA
 
 ### Frontend (前端)
 * **核心框架:** Vue 3 (Composition API) + Vite
@@ -42,7 +42,7 @@
    * **第二層 Interceptor (攔截器)**：深入 Spring Context，基於 ThreadLocal 中的角色資訊進行 RBAC 權限控管，攔截越權操作。
 * **個人中心**：員工可查看積分歷史、修改個人資料（含 Email 驗證碼機制）。
 
-### 4. 📊 數據統計與日誌
+### 4. 📊 數據統計與日誌記錄
 * **儀表板**：圖表化顯示銷售趨勢與部門分佈。
 * **雙重日誌**：系統自動記錄關鍵操作 (Operate Log) 與業務(員工Emp Log、商城Product Log)日誌，方便管理者隨時檢閱。
 
