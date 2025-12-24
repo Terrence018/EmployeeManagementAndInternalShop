@@ -23,8 +23,7 @@ public class TokenFilter implements Filter {
         HttpServletResponse response = (HttpServletResponse) servletResponse;
         String url = request.getRequestURI();
 
-        // 1. 放行登入接口 和 WebSocket 連線接口
-        // ⚠️ 請加上 || url.startsWith("/ws-endpoint")
+        // 放行登入接口 和 WebSocket 連線接口
         if (url.contains("/login") || url.startsWith("/ws-endpoint")) {
             filterChain.doFilter(request, response);
             return;
