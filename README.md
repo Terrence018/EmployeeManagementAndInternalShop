@@ -1,8 +1,8 @@
 # 員工管理與內部商城系統 (Employee Management & Internal Mall System)
 
 ## 📖 專案簡介
-這是一個模擬企業內部福利運作的 **全端前後端分離系統**。
-除了基礎的員工資訊管理（CRUD）與 商品管理（CRUD)外，更使用了 **Interceptor** + **Filter** 雙重攔截驗證，以達成 RBAC權限控管 確保數據安全。本專案整合了 **WebSocket 即時通訊功能**，實現了員工與管理員之間的線上客服系統，且結合 **點數商城** 與 **數據可視化** 儀表板 以及 **日誌記錄**，為一個功能完整的 SpringBoot+Vue+MySQL 專案。
+這是一個模擬企業內部福利運作的 **全端前後端分離系統**。別名 **EMP Mall**。
+除了基礎的員工資訊管理（CRUD）與 商品管理（CRUD)外，更使用了 **Interceptor** + **Filter** 雙重攔截驗證，以達成 RBAC權限控管 確保數據安全。本專案整合了 **WebSocket 即時通訊功能**，實現了員工與管理員之間的線上客服系統，且結合 **點數商城** 與 **數據可視化** 儀表板 以及 **日誌記錄**，為一個功能完整的 SpringBoot + Vue + MySQL 專案。
 
 ## 🛠️ 技術棧 (Tech Stack)
 
@@ -101,11 +101,15 @@ empMall-frontend/
 3. 執行 empMall-backend/sql/ 目錄下的 SQL 腳本，完成資料表結構與預設數據的匯入。
 
 ### Step 2: 啟動後端 (Backend)
-1. 使用 IntelliJ IDEA 開啟 empMall-backend 中的 emp_mall 目錄。
+1. 使用 IntelliJ IDEA 開啟 empMall-backend/emp_mall 目錄。
 
 2. 等待 Maven 下載依賴完成。
 
-3. 修改 application.yml 中的資料庫帳號密碼。
+3. **重要**：修改 application.yml 中的配置：
+
+   * 資料庫帳號密碼 (Datasource)
+   * AWS S3 Access Keys (若無可跳過，但圖片上傳功能將受限)
+   * Gmail SMTP 密碼 (若無可跳過，但郵件驗證碼功能將受限)
 
 4. 執行 啟動類的 Main 方法啟動 Spring Boot 應用 (預設 Port: 8080)。
 
