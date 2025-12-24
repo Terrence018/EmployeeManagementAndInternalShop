@@ -10,8 +10,8 @@
 * **ORM 框架**: MyBatis
 * **連接池**: Druid / HikariCP
 * **即時通訊**: Spring WebSocket (STOMP 協議)
-* **安全驗證**: JWT + HandlerInterceptor
-* **工具庫**: Lombok, FastJson/Jackson
+* **安全驗證**: JWT + Interceptor + Filter
+* **工具庫**: Lombok
 
 ## 📂 專案結構說明 (Package Structure)
 
@@ -35,7 +35,7 @@ com.emp_mall
 
 SQL 腳本位置: ../sql/empmall.sql (請依據實際檔名調整)
 
-資料庫名稱: empmall 
+資料庫名稱: emp_mall 
 
 ### 2. 修改配置文件
    請開啟 src/main/resources/application.yml (或 .properties)，並確認以下設定與你的本地環境一致：
@@ -66,6 +66,7 @@ mvn spring-boot:run
 ### 🔐認證機制 (Authentication)
 本系統使用 JWT (Json Web Token) 進行無狀態認證。
 除了登入 (/login) 與註冊介面外，其餘請求均需在 Header 攜帶 token。
+並同時使用Filter與Interceptor，嚴格區分管理員與使用者，避免越權操作。
 
 ### 💬 WebSocket 配置
 Endpoint: /ws (前端連線點)
