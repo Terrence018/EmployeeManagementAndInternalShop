@@ -1,6 +1,6 @@
 # 員工管理與內部商城系統 - 後端服務 (Backend API)
 
-本專案為系統的核心後端服務，基於 **Spring Boot 3.x** 構建，提供 RESTful API 供前端調用，並透過 **WebSocket** 處理即時通訊需求。
+本專案為系統的核心後端服務，基於 **Spring Boot 3.7** 構建，提供 RESTful API 供前端調用，並透過 **WebSocket** 處理即時通訊需求。
 
 ## 🛠️ 技術細節 (Technical Details)
 
@@ -10,23 +10,28 @@
 * **ORM 框架**: MyBatis
 * **連接池**: Druid / HikariCP
 * **即時通訊**: Spring WebSocket (STOMP 協議)
-* **安全驗證**: JWT + HandlerInterceptor
-* **工具庫**: Lombok, FastJson/Jackson
+* **安全驗證**: JWT + Interceptor + Filter
+* **雲端與第三方服務:** **AWS S3(儲存圖片)** 、 **JavaMailSender (Gmail SMTP)**
+* **工具庫**: Lombok
 
 ## 📂 專案結構說明 (Package Structure)
 
 代碼遵循標準的分層架構 (Layered Architecture)：
 
 ```text
-com.tlias.emp_mall
-├── config/             # 配置類 (WebSocketConfig, WebConfig, CorsConfig)
+com.empmall
+├── anno/               # 自定義註解 (如 @Log 用於日誌記錄)
+├── aop/                # AOP 切面 (處理操作日誌記錄 LogAspect)
+├── config/             # 配置類 (WebSocketConfig, WebConfig)
 ├── controller/         # 控制層 (處理 HTTP 請求與 WebSocket 訊息)
-├── service/            # 業務邏輯層 (事務控制, 複雜邏輯)
+├── exception/          # 全局異常處理 (GlobalExceptionHandler)
+├── filter/             # 過濾器 (處理跨域 CORS, 登入校驗 Filter)
+├── interceptor/        # 攔截器 (JWT 權限驗證 Interceptor)
 ├── mapper/             # 持久層 (MyBatis Interface)
 ├── pojo/               # 實體類 (Entity, DTO, VO)
-├── utils/              # 工具類 (JwtUtils, AliOSSUtils, Result)
-├── interceptor/        # 攔截器 (登入檢查 LoginCheckInterceptor)
-└── EmpMallApplication  # 啟動類
+├── service/            # 業務邏輯層 (事務控制, 複雜邏輯)
+├── utils/              # 工具類 (JwtUtils, CurrentHolder、UploadFileUtils)
+└── EmpMallWebManagementApplication  # 啟動類
 ```
 
 ## 🚀 環境配置與啟動 (Setup & Run)
@@ -35,7 +40,7 @@ com.tlias.emp_mall
 
 SQL 腳本位置: ../sql/empmall.sql (請依據實際檔名調整)
 
-資料庫名稱: empmall 
+資料庫名稱: emp_mall 
 
 ### 2. 修改配置文件
    請開啟 src/main/resources/application.yml (或 .properties)，並確認以下設定與你的本地環境一致：
@@ -64,8 +69,11 @@ mvn spring-boot:run
 ## 📡 核心功能與端點 (Endpoints)
 
 ### 🔐認證機制 (Authentication)
-本系統使用 JWT (Json Web Token) 進行無狀態認證。
-除了登入 (/login) 與註冊介面外，其餘請求均需在 Header 攜帶 token。
+本系統採取 雙重防護機制：
+
+1. Filter (過濾器)：處理跨域請求 (CORS)、JWT Token 解析與有效性驗證，並將使用者資訊存入 ThreadLocal。
+
+2. Interceptor（攔截器）：深入 Spring Context，基於 ThreadLocal 中的角色資訊進行 RBAC 權限控管，攔截越權操作。
 
 ### 💬 WebSocket 配置
 Endpoint: /ws (前端連線點)
