@@ -11,7 +11,7 @@
 * **連接池**: Druid / HikariCP
 * **即時通訊**: Spring WebSocket (STOMP 協議)
 * **安全驗證**: JWT + Interceptor + Filter
-* **第三方服務:** JavaMailSender (Gmail SMTP)
+* **雲端與第三方服務:** **AWS S3(儲存圖片)** 、 **JavaMailSender (Gmail SMTP)**
 * **工具庫**: Lombok
 
 ## 📂 專案結構說明 (Package Structure)
