@@ -38,8 +38,8 @@
 ### 3. 👥 員工與權限管理 (RBAC)
 * **權限分級**：嚴格區分 **管理員 (Role 1)** 與 **一般員工 (Role 2)** 的操作介面與 API 訪問權限。
 * **雙重資安防護**：
-   * **第一層 Filter (過濾器)**：處理跨域請求 (CORS) 與初步的請求過濾。
-   * **第二層 Interceptor (攔截器)**：深入 Spring Context，驗證 JWT Token 有效性並攔截越權操作，防止 API 被惡意調用。
+   * **第一層 Filter (過濾器)**：處理跨域請求 (CORS)、JWT Token 解析與有效性驗證，並將使用者資訊存入 ThreadLocal。
+   * **第二層 Interceptor (攔截器)**：深入 Spring Context，基於 ThreadLocal 中的角色資訊進行 RBAC 權限控管，攔截越權操作。
 * **個人中心**：員工可查看積分歷史、修改個人資料（含 Email 驗證碼機制）。
 
 ### 4. 📊 數據統計與日誌
