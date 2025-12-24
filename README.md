@@ -12,7 +12,7 @@
 * **ORM:** Mybatis
 * **即時通訊:** **WebSocket (STOMP + SockJS)**
 * **安全驗證:** JWT (JSON Web Token), Filter, Interceptor
-* **第三方服務:** **JavaMailSender (Gmail SMTP)**
+* **雲端與第三方服務:** **AWS S3(儲存圖片)** 、 **JavaMailSender (Gmail SMTP)**
 * **工具:** Maven, Lombok, DataGrip, IntellJ IDEA
 
 ### Frontend (前端)
