@@ -108,11 +108,11 @@ public List<Emp> list(EmpQueryParam empQueryParam);
 
 
 
-    // ✅ 1. 根據 Email 查詢員工 (確認員工是否存在)
+    // 1. 根據 Email 查詢員工 (確認員工是否存在)
     @Select("select * from emp where email = #{email}")
     Emp getByEmail(String email);
 
-    // ✅ 2. 修改密碼 (根據 Email 更新)
+    // 2. 修改密碼 (根據 Email 更新)
     @Update("update emp set password = #{newPassword}, update_time = now() where email = #{email}")
     void updatePasswordByEmail(String email, String newPassword);
 
