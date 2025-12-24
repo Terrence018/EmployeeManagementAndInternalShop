@@ -8,8 +8,10 @@ public interface PointsService {
     // 發放點數 (給誰, 給多少, 理由)
     void grantPoints(Integer empId, Integer amount, String description);
 
-    // 查詢紀錄
+    //(暫留)
     List<PointsLog> listAll();
+
+    //查詢紀錄
     List<PointsLog> listByEmpId(Integer empId);
 
     // 對應 issuePoints

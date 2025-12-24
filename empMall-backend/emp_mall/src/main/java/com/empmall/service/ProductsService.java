@@ -7,8 +7,14 @@ import java.util.List;
 
 public interface ProductsService {
 
-    // 原有的查詢方法
+    /**
+     * 商品列表
+     */
     PageBean<Products> list(ProductQueryParam param);
+
+    /**
+     * 根據id查詢商品
+     */
     Products getById(Integer id);
 
     /**
