@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.empmall.mapper.ProductsMapper">
+
+    <select id="list" resultType="com.empmall.pojo.Products">
+        SELECT * FROM products
+        <where>
+            <if test="status != null"> AND status = #{status} </if>
+            <if test="category != null"> AND category = #{category} </if>
+            <if test="keyword != null"> AND name LIKE concat('%', #{keyword}, '%') </if>
+        </where>
+        ORDER BY create_time DESC, id DESC
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO products(
+            name, image, description, points_needed, status,
+            category, stock, create_time, update_time
+        ) VALUES (
+                     #{name}, #{image}, #{description}, #{pointsNeeded}, #{status},
+                     #{category}, #{stock}, #{createTime}, #{updateTime}
+                 )
+    </insert>
+
+    <update id="update">
+        UPDATE products
+        <set>
+            <if test="name != null"> name = #{name}, </if>
+            <if test="image != null"> image = #{image}, </if>
+            <if test="description != null"> description = #{description}, </if>
+            <if test="pointsNeeded != null"> points_needed = #{pointsNeeded}, </if>
+            <if test="status != null"> status = #{status}, </if>
+            <if test="category != null"> category = #{category}, </if>
+            <if test="stock != null"> stock = #{stock}, </if>
+            <if test="updateTime != null"> update_time = #{updateTime}, </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteBatchIds">
+        DELETE FROM products WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="selectBatchIds" resultType="com.empmall.pojo.Products">
+        SELECT * FROM products WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+</mapper>

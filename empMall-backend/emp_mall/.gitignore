@@ -1,0 +1,26 @@
+# --- Spring Boot & Java 標準忽略清單 ---
+
+# 編譯產出的檔案 (垃圾)
+target/
+*.class
+
+# Log 檔案
+logs/
+*.log
+
+# IDE 設定檔 (每個人的電腦設定不同，不要上傳)
+.idea/
+.vscode/
+*.iml
+.classpath
+.project
+.settings/
+.DS_Store
+
+# 打包後的 Jar/War 檔 (通常不傳大檔)
+*.jar
+*.war
+
+# 暫存檔
+*.swp
+*~

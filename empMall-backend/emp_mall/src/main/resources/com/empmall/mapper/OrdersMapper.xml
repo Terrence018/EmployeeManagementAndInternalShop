@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.empmall.mapper.OrdersMapper">
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO orders(
+            emp_id, total_points, status, delivery_method,
+            address, create_time, update_time
+        ) VALUES (
+                     #{empId}, #{totalPoints}, #{status}, #{deliveryMethod},
+                     #{address}, #{createTime}, #{updateTime}
+                 )
+    </insert>
+
+    <select id="getCategorySales" resultType="com.empmall.pojo.EmpReportVO">
+        SELECT
+            CASE p.category
+                WHEN 1 THEN '3C數位'
+                WHEN 2 THEN '辦公用品'
+                WHEN 3 THEN '食品飲料'
+                WHEN 4 THEN '電子票券'
+                WHEN 5 THEN '生活百貨'
+                WHEN 6 THEN '圖書進修'
+                WHEN 7 THEN '品牌周邊'
+                WHEN 8 THEN '運動保健'
+                ELSE '其他'
+                END AS categoryName,
+            IFNULL(SUM(oi.quantity), 0) AS count
+        FROM order_item oi
+            LEFT JOIN products p ON oi.product_id = p.id
+        GROUP BY p.category
+    </select>
+
+    <resultMap id="OrderWithItemsMap" type="com.empmall.pojo.Orders">
+        <id property="id" column="id" />
+        <result property="empId" column="emp_id" />
+        <result property="totalPoints" column="total_points" />
+        <result property="status" column="status" />
+        <result property="deliveryMethod" column="delivery_method" />
+        <result property="address" column="address" />
+        <result property="createTime" column="create_time" />
+        <result property="empName" column="emp_name" /> <collection property="items" ofType="com.empmall.pojo.OrderItem">
+        <id property="id" column="item_id" />
+        <result property="productName" column="product_name" />
+        <result property="image" column="image" />
+        <result property="quantity" column="quantity" />
+        <result property="pointsPerItem" column="points_per_item" />
+    </collection>
+    </resultMap>
+
+    <select id="findAll" resultMap="OrderWithItemsMap">
+        SELECT
+            o.*,
+            e.name as emp_name,
+            oi.id as item_id,
+            oi.product_name,
+            oi.image,
+            oi.quantity,
+            oi.points_per_item
+        FROM orders o
+                 LEFT JOIN emp e ON o.emp_id = e.id
+                 LEFT JOIN order_item oi ON o.id = oi.order_id
+        ORDER BY o.create_time DESC
+    </select>
+
+    <select id="findByEmpId" resultMap="OrderWithItemsMap">
+        SELECT
+            o.*,
+            oi.id as item_id,
+            oi.product_name,
+            oi.image,
+            oi.quantity,
+            oi.points_per_item
+        FROM orders o
+                 LEFT JOIN order_item oi ON o.id = oi.order_id
+        WHERE o.emp_id = #{empId}
+        ORDER BY o.create_time DESC
+    </select>
+
+</mapper>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.empmall.mapper.GoodsMapper">
+
+    <select id="listGoodsSalesStats" resultType="com.empmall.pojo.GoodsSalesVO">
+        SELECT
+        p.id,
+        p.name,
+        p.image,
+        IFNULL(SUM(oi.quantity), 0) AS totalSold,
+        MAX(o.create_time) AS lastSaleTime
+        FROM products p
+        LEFT JOIN order_item oi ON p.id = oi.product_id
+        LEFT JOIN orders o ON oi.order_id = o.id
+        GROUP BY p.id, p.name, p.image
+
+        <choose>
+            <when test="orderBy == 1">
+                ORDER BY lastSaleTime DESC, totalSold DESC
+            </when>
+            <otherwise>
+                ORDER BY totalSold DESC, lastSaleTime DESC
+            </otherwise>
+        </choose>
+    </select>
+
+</mapper>
