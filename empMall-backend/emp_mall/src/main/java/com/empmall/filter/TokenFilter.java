@@ -21,6 +21,14 @@ public class TokenFilter implements Filter {
 
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
+        String url = request.getRequestURI();
+
+        // 1. 放行登入接口 和 WebSocket 連線接口
+        // ⚠️ 請加上 || url.startsWith("/ws-endpoint")
+        if (url.contains("/login") || url.startsWith("/ws-endpoint")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         //1. 強制設定 CORS 跨域 Headers (解決瀏覽器報錯的核心)
         response.setHeader("Access-Control-Allow-Origin", "*"); // 允許所有來源

@@ -33,6 +33,7 @@ public class WebConfig implements WebMvcConfigurer {
             "/emps/login",          // 登入
             "/emps/info",           // 員工查詢自己資料
             "/emps/update_personal",    //員工修改自己資料
+            "/ws-endpoint/**", //排除 WebSocket 路徑
 
             //--- 商城相關放行 ---
             "/products",            // 放行「獲取商品列表」(員工商城頁面用)
