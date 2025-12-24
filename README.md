@@ -1,48 +1,81 @@
 # 員工管理與內部商城系統 (Employee Management & Internal Mall System)
 
 ## 📖 專案簡介
-這是一個基於 **SpringBoot** 與 **Vue.js** 開發的前後端分離系統。
-系統主要功能包含企業內部的員工資訊管理（CRUD）、權限控管（RBAC），以及一個完整的內部點數兌換商城，模擬企業福利系統的運作流程。
+這是一個模擬企業內部福利運作的 **全端前後端分離系統**。
+除了基礎的員工資訊管理（CRUD）與 RBAC 權限控管外，本專案最大的亮點在於整合了 **WebSocket 即時通訊功能**，實現了員工與管理員之間的線上客服系統，並結合完整的 **點數商城** 與 **數據可視化** 儀表板。
 
 ## 🛠️ 技術棧 (Tech Stack)
 
 ### Backend (後端)
-* **核心框架:** Spring Boot 3.x
+* **核心框架:** Spring Boot 3.5.7
 * **資料庫:** MySQL 8.0
-* **ORM:** Mybatis 
-* **安全與權限:** JWT (JSON Web Token), Filter, Interceptor
-* **工具:** Maven, Lombok, DataGrip, IntelliJ IDEA
+* **ORM:** Mybatis
+* **即時通訊:** **WebSocket (STOMP + SockJS)**
+* **安全驗證:** JWT (JSON Web Token), Filter, Interceptor
+* **工具:** Maven, Lombok, DataGrip, IntellJ IDEA
 
 ### Frontend (前端)
-* **框架:** Vue.js
-* **HTTP 請求:** Axios
-* **UI 組件庫:** Element Plus 
+* **核心框架:** Vue 3 (Composition API) + Vite
+* **UI 組件庫:** Element Plus
+* **HTTP 請求:** Axios (封裝攔截器)
+* **即時通訊:** `stompjs` + `sockjs-client`
+* **圖表:** Chart.js (數據統計)
 
 ## ✨ 核心功能 (Key Features)
 
-* **👥 員工管理系統**
-    * 完整的員工資料增刪改查 (CRUD)。
-    * **RBAC 權限設計**：區分管理員與一般員工，不同角色擁有不同操作權限。
-    * **雙重日誌記錄**：實作 `System Log` 與 `Business Log`，完整記錄操作軌跡與業務變動。
+### 1. 💬 即時客服聊天室 (WebSocket)
+* **雙向即時通訊**：基於 STOMP 協議，實現員工與管理員的一對一對話。
+* **狀態管理**：
+  * 員工可發起工單（選擇問題類型）。
+  * 管理員接收即時通知（Notification）並決定是否接單。
 
-* **🛒 內部商城系統**
-    * **商品管理**：管理員可上下架商品、調整庫存與點數價格。
-    * **購物車與下單**：完整的電商購物流程體驗。
-    * **訂單管理**：追蹤訂單狀態（待處理、已完成、取消）。
+### 2. 🛒 內部福利商城
+* **商品管理**：管理員可上下架商品、上傳圖片、調整庫存與點數定價。
+* **購物流程**：員工使用個人積分進行兌換，支援購物車操作與訂單追蹤。
+* **庫存並發控制**：確保商品扣庫存的準確性。
 
-* **🔒 安全機制**
-    * 登入驗證與 Token 管理。
-    * 敏感操作（如使用者編輯個人資訊）需進行 Email 驗證 。
+### 3. 👥 員工與權限管理 (RBAC)
+* **權限分級**：嚴格區分 **管理員 (Role 1)** 與 **一般員工 (Role 2)** 的操作介面與 API 訪問權限。
+* **個人中心**：員工可查看積分歷史、修改個人資料（含 Email 驗證碼機制）。
 
-## 🚀 快速啟動 (Quick Start)
+### 4. 📊 數據統計與日誌
+* **儀表板**：圖表化顯示銷售趨勢與部門分佈。
+* **雙重日誌**：系統自動記錄關鍵操作 (Operate Log) 與業務變更。
 
-### 1. 資料庫設定
-本專案附帶完整的 SQL 腳本。
-1. 進入 `empMall-backend/sql/` 資料夾。
-2. 將 `empmall.sql` 匯入您的 MySQL 資料庫。
-3. 修改後端 `application.yml` 中的資料庫帳號密碼。
+## 📂 專案結構 (Project Structure)
 
-### 2. 後端啟動 (Backend)
+```text
+/ (Root)
+├── empMall-backend/        # 後端專案根目錄
+│   ├── sql/                # 資料庫初始化腳本 (含結構與預設數據)
+│   └── emp_mall/           # SpringBoot 原始碼 (Maven Project)
+└── empMall-frontend/       # 前端 Vue3 原始碼 (Vite Project)
+```
+
+## 快速啟動 (Quick Start)
+
+### Step 1: 資料庫設置 (Database)
+1. 請確保本地已安裝 MySQL 8.0。
+
+2. 建立一個新的資料庫（例如命名為 tlias 或參考 application.yml 設定）。
+ 
+3. 執行 empMall-backend/sql/ 目錄下的 SQL 腳本，完成資料表結構與預設數據的匯入。
+
+### Step 2: 啟動後端 (Backend)
+1. 使用 IntelliJ IDEA 開啟 empMall-backend 目錄。
+
+2. 等待 Maven 下載依賴完成。
+
+3. 修改 application.yml 中的資料庫帳號密碼。
+
+4. 執行 Main 方法啟動 Spring Boot 應用 (預設 Port: 8080)。
+
+### Step 3: 啟動前端 (Frontend)
+前端有獨立的詳細說明文件，請進入目錄操作：
+
 ```bash
-cd empMall-backend
-# 建議使用 IDEA 開啟並執行 EmpMallWebManagementApplication
+cd empMall-frontend
+npm install
+npm run dev
+```
+
