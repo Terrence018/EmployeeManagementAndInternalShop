@@ -29,7 +29,19 @@
 cd empMall-frontend
 npm install
 ```
-### 3. 啟動開發服務器
+### 3. 環境變數設定 (重要)
+
+由於資安考量，Google Maps API Key 不包含在程式碼庫中。請依照以下步驟設定：
+
+ 1. 在 empMall-frontend 根目錄下新增一個名為 .env 的檔案。
+
+ 2.在檔案中填入您的 API Key：
+ ```Properties
+ VITE_GOOGLE_MAPS_API_KEY=您的_Google_Maps_API_Key
+ ```
+若無 Key，地圖功能將無法正常顯示，但不影響其他商城功能運作。
+
+### 4. 啟動開發服務器
 安裝完成後，執行以下指令開啟網頁：
 
 ```bash
