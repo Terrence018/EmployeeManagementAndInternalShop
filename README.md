@@ -54,6 +54,21 @@
 │   ├── sql/                # 資料庫初始化腳本 (含結構與預設數據)
 │   └── emp_mall/           # SpringBoot 原始碼 (Maven Project)
 └── empMall-frontend/       # 前端 Vue3 原始碼 (Vite Project)
+
+後端
+com.empmall
+├── anno/               # 自定義註解 (如 @Log 用於日誌記錄)
+├── aop/                # AOP 切面 (處理操作日誌記錄 LogAspect)
+├── config/             # 配置類 (WebSocketConfig, WebConfig)
+├── controller/         # 控制層 (處理 HTTP 請求與 WebSocket 訊息)
+├── exception/          # 全局異常處理 (GlobalExceptionHandler)
+├── filter/             # 過濾器 (處理跨域 CORS, 登入校驗 Filter)
+├── interceptor/        # 攔截器 (JWT 權限驗證 Interceptor)
+├── mapper/             # 持久層 (MyBatis Interface)
+├── pojo/               # 實體類 (Entity, DTO, VO)
+├── service/            # 業務邏輯層 (事務控制, 複雜邏輯)
+├── utils/              # 工具類 (JwtUtils, CurrentHolder、UploadFileUtils)
+└── EmpMallWebManagementApplication  # 啟動類
 ```
 
 ## 快速啟動 (Quick Start)
