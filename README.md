@@ -69,6 +69,25 @@ com.empmall
 ├── service/            # 業務邏輯層 (事務控制, 複雜邏輯)
 ├── utils/              # 工具類 (JwtUtils, CurrentHolder、UploadFileUtils)
 └── EmpMallWebManagementApplication  # 啟動類
+
+empMall-frontend/
+├── src/
+│   ├── api/                # 後端 API 串接管理 (Axios)
+│   ├── assets/             # 靜態資源 (Images等）
+│   ├── components/         # 共用組件 (Global Components)
+│   ├── router/             # 路由配置 (Vue Router)
+│   ├── utils/              # 工具函式 
+│   ├── views/              # 頁面級組件 ，按業務功能分類
+│   │   ├── layout/         # 佈局 
+│   │   ├── login/          # 登入頁
+│   │   ├── emp/ & dept/    # 人事管理模組
+│   │   ├── mall/ & order/  # 商城與訂單模組
+│   │   └── stats/          # 數據統計模組
+│   ├── App.vue             # 根組件
+│   └── main.js             # 入口文件 (Pinia, Router 掛載)
+├── package.json            # 專案依賴管理
+└── vite.config.js          # Vite 設定檔
+
 ```
 
 ## 快速啟動 (Quick Start)
