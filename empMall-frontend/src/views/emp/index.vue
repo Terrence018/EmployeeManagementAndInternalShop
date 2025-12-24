@@ -1,11 +1,11 @@
 <script setup>
 import { ref, reactive, onMounted, nextTick } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Search, Plus, Delete, Edit, Refresh, Upload, User, Suitcase, Phone, Lock, Message } from '@element-plus/icons-vue' // ✅ 引入 Message 圖標
+import { Search, Plus, Delete, Edit, Refresh, Upload, User, Suitcase, Phone, Lock, Message } from '@element-plus/icons-vue'
 import request from '@/utils/request'
 import { getEmpPage, addEmp, updateEmp, getEmpById, deleteEmp } from '@/api/emp.js'
 
-// --- 1. 搜尋與分頁數據 ---
+//搜尋與分頁數據
 const loading = ref(false)
 const tableData = ref([])
 const total = ref(0)
@@ -22,7 +22,7 @@ const dateRange = ref([])
 // 部門列表 
 const deptList = ref([])
 
-// --- 2. 彈窗與表單數據 ---
+//彈窗與表單數據
 const dialogVisible = ref(false)
 const dialogTitle = ref('')
 const formRef = ref(null)
@@ -35,13 +35,41 @@ const formData = ref({
   gender: '',
   image: '',
   phone: '',
-  email: '', // ✅ 新增：初始化 email 欄位
+  email: '',
   job: '',
   salary: null,
   entryDate: '',
   deptId: '',
   exprList: [] 
 })
+
+//AWS 上傳相關設定
+const uploadAction = 'http://localhost:8080/upload' // 後端上傳接口
+const uploadHeaders = {
+  token: localStorage.getItem('token') //攜帶Token
+}
+
+//上傳成功回調
+const handleUploadSuccess = (response) => {
+  if (response.code === 1) {
+    formData.value.image = response.data // 將回傳的 S3 網址填入表單
+    ElMessage.success('圖片上傳成功！')
+  } else {
+    ElMessage.error(response.msg || '上傳失敗')
+  }
+}
+
+//上傳前檢查
+const beforeUpload = (rawFile) => {
+  if (rawFile.type !== 'image/jpeg' && rawFile.type !== 'image/png') {
+    ElMessage.error('圖片必須是 JPG 或 PNG 格式!')
+    return false
+  } else if (rawFile.size / 1024 / 1024 > 5) {
+    ElMessage.error('圖片大小不能超過 5MB!')
+    return false
+  }
+  return true
+}
 
 // 密碼驗證規則
 const validatePass = (rule, value, callback) => {
@@ -58,19 +86,21 @@ const rules = {
   name: [{ required: true, message: '請輸入姓名', trigger: 'blur' }],
   gender: [{ required: true, message: '請選擇性別', trigger: 'change' }],
   phone: [{ required: true, message: '請輸入手機號碼', trigger: 'blur' }],
-  // ✅ 新增：Email 驗證規則 (必填 + 格式檢查)
   email: [
     { required: true, message: '請輸入電子信箱', trigger: 'blur' },
     { type: 'email', message: '請輸入正確的信箱格式', trigger: 'blur' }
   ],
   entryDate: [{ required: true, message: '請選擇入職日期', trigger: 'change' }],
-  deptId: [{ required: true, message: '請選擇部門', trigger: 'change' }]
+  deptId: [{ required: true, message: '請選擇部門', trigger: 'change' }],
+  salary: [
+    { required: true, message: '請輸入薪資', trigger: 'blur' },
+    { pattern: /^[0-9]+$/, message: '薪資必須為數字', trigger: 'blur' }
+  ]
 }
 
 const selectedIds = ref([])
 
-// --- 方法區 ---
-
+//方法區
 const getDeptList = async () => {
   const res = await request.get('/dept') 
   if (res.code === 1) {
@@ -121,11 +151,16 @@ const handleCurrentChange = (val) => {
   loadData()
 }
 
+// 如果返回 false，該行前面的勾選框會變灰，無法選中
+const checkSelectable = (row) => {
+  return row.id !== 1 // 假設金牌管理員 ID 為 1
+}
+
 const handleSelectionChange = (selection) => {
   selectedIds.value = selection.map(item => item.id)
 }
 
-// --- 新增 / 編輯 邏輯 ---
+//新增 / 編輯
 
 const openDialog = async (row = null) => {
   dialogVisible.value = true
@@ -135,14 +170,14 @@ const openDialog = async (row = null) => {
   formRef.value?.clearValidate() 
 
   if (row) {
-    // --- 編輯模式 ---
+    //編輯模式
     const res = await getEmpById(row.id)
     if (res.code === 1) {
       formData.value = res.data
       if (!formData.value.exprList) formData.value.exprList = []
     }
   } else {
-    // --- 新增模式 ---
+    //新增模式
     formData.value = {
       id: null,
       username: '',
@@ -151,7 +186,7 @@ const openDialog = async (row = null) => {
       gender: '',
       image: '',
       phone: '',
-      email: '', // ✅ 初始化為空
+      email: '', 
       job: '',
       salary: null,
       entryDate: '',
@@ -209,6 +244,11 @@ const removeExprItem = (index) => {
 // --- 刪除邏輯 ---
 
 const handleDelete = (ids) => {
+  if (ids.includes(1)) {
+     ElMessage.warning('無法對超級管理員執行此操作')
+     return
+  }
+
   ElMessageBox.confirm('確認要刪除選中的員工數據嗎？', '警告', {
     confirmButtonText: '確定',
     cancelButtonText: '取消',
@@ -247,7 +287,7 @@ onMounted(() => {
             <el-option label="女" :value="2" />
           </el-select>
         </el-form-item>
-
+        
         <el-form-item label="入職日期">
           <el-date-picker
             v-model="dateRange"
@@ -258,7 +298,7 @@ onMounted(() => {
             value-format="YYYY-MM-DD"
           />
         </el-form-item>
-
+        
         <el-form-item>
           <el-button type="primary" :icon="Search" @click="handleSearch">查詢</el-button>
           <el-button :icon="Refresh" @click="handleReset">重置</el-button>
@@ -286,9 +326,9 @@ onMounted(() => {
         v-loading="loading"
         @selection-change="handleSelectionChange"
       >
-        <el-table-column type="selection" width="55" align="center" />
+        <el-table-column type="selection" width="55" align="center" :selectable="checkSelectable" />
         
-        <el-table-column label="姓名" width="150">
+        <el-table-column label="姓名" width="120">
           <template #default="scope">
             <div style="display: flex; align-items: center;">
               <el-avatar shape="square" :size="40" :src="scope.row.image" v-if="scope.row.image" />
@@ -306,7 +346,7 @@ onMounted(() => {
           </template>
         </el-table-column>
         
-        <el-table-column prop="email" label="電子信箱" width="180" show-overflow-tooltip />
+        <el-table-column prop="email" label="電子信箱" width="140" show-overflow-tooltip />
 
         <el-table-column prop="job" label="職位" width="100" />
         
@@ -326,8 +366,13 @@ onMounted(() => {
 
         <el-table-column label="操作" min-width="150" fixed="right">
           <template #default="scope">
-            <el-button link type="primary" :icon="Edit" @click="openDialog(scope.row)">編輯</el-button>
-            <el-button link type="danger" :icon="Delete" @click="handleDelete([scope.row.id])">刪除</el-button>
+            <div v-if="scope.row.id !== 1">
+              <el-button link type="primary" :icon="Edit" @click="openDialog(scope.row)">編輯</el-button>
+              <el-button link type="danger" :icon="Delete" @click="handleDelete([scope.row.id])">刪除</el-button>
+            </div>
+            <div v-else>
+              <el-tag type="info" size="small">超級管理員</el-tag>
+            </div>
           </template>
         </el-table-column>
       </el-table>
@@ -442,27 +487,25 @@ onMounted(() => {
 
         <el-row :gutter="20">
           <el-col :span="12">
-            <el-form-item label="薪資">
-               <el-input-number 
-                 v-model="formData.salary" 
-                 :min="0" 
-                 controls-position="right"
-                 style="width: 100%;" 
-                 placeholder="輸入薪資"
-               />
+            <el-form-item label="薪資" prop="salary">
+              <el-input v-model="formData.salary" placeholder="請輸入薪資金額" style="width: 100%;" clearable />
             </el-form-item>
           </el-col>
+          
           <el-col :span="12">
-             <el-form-item label="頭像URL">
-              <div style="display: flex; width: 100%; align-items: flex-start;">
-                <el-input v-model="formData.image" placeholder="圖片連結" style="flex: 1; margin-right: 5px;">
-                  <template #prefix><el-icon><Upload /></el-icon></template>
-                </el-input>
-                <div class="avatar-preview">
-                  <img v-if="formData.image" :src="formData.image" />
-                  <el-icon v-else class="avatar-placeholder-icon"><User /></el-icon>
-                </div>
-              </div>
+             <el-form-item label="頭像上傳">
+              <el-upload
+                class="avatar-uploader"
+                :action="uploadAction"
+                name="image" 
+                :headers="uploadHeaders"
+                :show-file-list="false"
+                :on-success="handleUploadSuccess"
+                :before-upload="beforeUpload"
+              >
+                <img v-if="formData.image" :src="formData.image" class="avatar" />
+                <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
+              </el-upload>
             </el-form-item>
           </el-col>
         </el-row>
@@ -497,7 +540,7 @@ onMounted(() => {
             </template>
           </el-table-column>
 
-          <el-table-column label="操作" width="50" align="center">
+          <el-table-column label="操作" width="30" align="center">
             <template #default="scope">
               <el-button type="danger" link :icon="Delete" @click="removeExprItem(scope.$index)"></el-button>
             </template>
@@ -525,4 +568,17 @@ onMounted(() => {
 .avatar-preview { width: 40px; height: 40px; border-radius: 4px; background-color: #f0f2f5; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid #dcdfe6; flex-shrink: 0; }
 .avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
 .avatar-placeholder-icon { font-size: 20px; color: #909399; }
+
+/* 上傳組件 CSS (與商品管理頁一致) */
+.avatar-uploader .el-upload {
+  border: 1px dashed var(--el-border-color);
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: var(--el-transition-duration-fast);
+}
+.avatar-uploader .el-upload:hover { border-color: var(--el-color-primary); }
+.avatar-uploader-icon { font-size: 28px; color: #8c939d; width: 100px; height: 100px; text-align: center; line-height: 100px; }
+.avatar { width: 100px; height: 100px; display: block; object-fit: cover; }
 </style>

@@ -4,7 +4,7 @@ import request from '@/utils/request'
 import { ElMessage } from 'element-plus'
 import { Plus, Search, User, Timer, Coin } from '@element-plus/icons-vue'
 
-// --- 數據區 ---
+// 數據區
 const loading = ref(false)
 const tableData = ref([]) // 點數發放紀錄
 const total = ref(0)
@@ -16,22 +16,21 @@ const pageParams = reactive({
 
 // 彈窗相關
 const dialogVisible = ref(false)
-const empList = ref([]) // 🟢 存放所有員工列表 (給下拉選單用)
+const empList = ref([]) // 存放所有員工列表 (供下拉選單用)
 const form = reactive({
   empId: null,
   points: 10,
-  type: 1, // 1:獎勵, 2:扣除 (看你後端定義，假設預設是發放)
+  type: 1, // 1:獎勵, 2:扣除
   info: '' // 備註
 })
 
-// --- 方法區 ---
+// 方法區 
 
 // 1. 獲取點數紀錄列表 (假設後端接口是 /points/log，請依實際修改)
 const loadData = async () => {
   loading.value = true
   try {
-    // ⚠️ 請確認你的後端查詢點數紀錄的 API 路徑
-    // 如果還沒寫，這裡可能會報錯
+
     const res = await request.get('/points/log', { params: pageParams }) 
     if (res.code === 1) {
       tableData.value = res.data.rows
@@ -44,7 +43,7 @@ const loadData = async () => {
   }
 }
 
-// 🟢 2. 獲取員工列表 (給下拉選單用)
+// 2. 獲取員工列表 (供下拉選單用)
 const loadEmpList = async () => {
   // 這裡設一個較大的 pageSize 以獲取所有員工，或者後端有不分頁的接口更好
   const res = await request.get('/emps', { params: { page: 1, pageSize: 1000 } })
@@ -78,8 +77,6 @@ const submitForm = async () => {
     return
   }
 
-  // ⚠️ 請確認你的後端發放點數 API 路徑
-  // 假設是用 POST /points 來新增紀錄並修改餘額
   const res = await request.post('/points', form)
   
   if (res.code === 1) {
@@ -155,11 +152,8 @@ onMounted(() => {
 
         <el-table-column label="變動點數" prop="points" align="center">
           <template #default="scope">
-            <span v-if="scope.row.type === 1" style="color: #67C23A; font-weight: bold;">
-              +{{ scope.row.points }}
-            </span>
-            <span v-else style="color: #F56C6C; font-weight: bold;">
-              -{{ scope.row.points }}
+            <span :style="{ color: scope.row.points > 0 ? '#67C23A' : '#F56C6C', fontWeight: 'bold' }">
+              {{ scope.row.points > 0 ? '+' + scope.row.points : scope.row.points }}
             </span>
           </template>
         </el-table-column>
@@ -184,7 +178,7 @@ onMounted(() => {
       </div>
     </el-card>
 
-    <el-dialog v-model="dialogVisible" title="💰 發放/扣除點數" width="500px">
+    <el-dialog v-model="dialogVisible" title="發放/扣除點數" width="500px">
       <el-form label-width="100px">
         
         <el-form-item label="選擇員工">

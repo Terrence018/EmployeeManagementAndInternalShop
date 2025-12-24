@@ -98,12 +98,12 @@ onMounted(() => {
         <el-table-column label="收貨資訊" min-width="150">
           <template #default="scope">
             <div v-if="scope.row.deliveryMethod === 1">
-              <el-tag type="info" size="small" effect="plain">🏢 公司自取</el-tag>
+              <el-tag type="info" size="small" effect="plain">公司自取</el-tag>
             </div>
             <div v-else>
               <el-popover placement="top" :width="200" trigger="hover">
                 <template #reference>
-                  <el-tag type="warning" size="small" effect="plain">🚚 寄送到家</el-tag>
+                  <el-tag type="warning" size="small" effect="plain">🚚 宅配</el-tag>
                 </template>
                 <div style="font-size: 12px;">
                   <p><strong>地址：</strong></p>

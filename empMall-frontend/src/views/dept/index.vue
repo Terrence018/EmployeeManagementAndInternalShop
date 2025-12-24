@@ -10,7 +10,7 @@
   })
   
   const deptList = ref([])
-
+  
   //查詢
   const search = async () =>{
     // const result = await axios.get('https://m1.apifoxmock.com/m1/7562333-7299876-default/dept')
@@ -104,7 +104,7 @@
   //刪除部門
   const delById = async (id) =>{
     //彈出確認框
-    ElMessageBox.confirm('您確定刪除該部門嗎?','提示s',
+    ElMessageBox.confirm('您確定刪除該部門嗎?','提示',
     {confirmButtonText: '確定',cancelButtonText: '取消',type: 'warning',}
     ).then(async () => { //點擊確認，後調用的函數
       const result = await deleteByIdApi(id);
@@ -145,7 +145,7 @@
 
   <!-- Dialog對話框 -->
   <el-dialog v-model="dialogFormVisible" :title="formTitle" width="500">
-    {{ dept }}
+    <!-- {{ dept }} -->
     <el-form :model="dept" :rules="rules" ref="deptFormRef" >
       <el-form-item label="部門名稱" label-width="80px" prop="name">
         <el-input v-model="dept.name"/>

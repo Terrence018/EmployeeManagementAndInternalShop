@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-//创建axios实例对象
+//創建axios實例物件
 const request = axios.create({
   baseURL: '/api',
   timeout: 600000
@@ -14,8 +14,6 @@ request.interceptors.request.use(
     
     // 如果有 token，就放入請求頭中
     if (token) {
-      // 注意：後端接收的 Header 名稱通常是 'token' 或 'Authorization'
-      // 根據你的 Tlias 課程習慣，通常是 'token'
       config.headers.token = token
     }
     return config
@@ -25,12 +23,12 @@ request.interceptors.request.use(
   }
 )
 
-//axios的响应 response 拦截器
+//axios的響應 response攔截器
 request.interceptors.response.use(
-  (response) => { //成功回调
+  (response) => { //成功回調
     return response.data
   },
-  (error) => { //失败回调
+  (error) => { //失败回調
     return Promise.reject(error)
   }
 )

@@ -1,16 +1,22 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
-import { Delete, ShoppingCart, ArrowLeft, Location } from '@element-plus/icons-vue' // 記得引入 Location
+// 引入MapLocation Icon
+import { Delete, ShoppingCart, ArrowLeft, Location, MapLocation } from '@element-plus/icons-vue' 
 import { ElMessage, ElMessageBox } from 'element-plus'
 import request from '@/utils/request'
 import { useRouter } from 'vue-router'
+import MapSelector from '@/components/MapSelector.vue' // ✅ 引入地圖元件
 
 const router = useRouter()
 const cartList = ref([])
 const loading = ref(false)
-const selectedItems = ref([]) // 存儲選中的行數據
+const selectedItems = ref([]) 
 
-// ✅ 新增：結帳彈窗相關數據
+// 地圖相關
+const mapVisible = ref(false)
+const googleApiKey = 'AIzaSyAdkUQCnemI3Rs04MjfCR3POlDQudUSy_8' // 您的 Key
+
+// 結帳彈窗相關數據
 const checkoutDialogVisible = ref(false)
 const checkoutForm = ref({
   deliveryMethod: 1, // 1: 自取, 2: 寄送
@@ -56,7 +62,7 @@ const handleSelectionChange = (val) => {
   selectedItems.value = val
 }
 
-// 6. ✅ 修改：點擊「確認結帳」按鈕 (只開啟彈窗，不直接送出)
+// 6. 點擊「確認結帳」
 const handleCheckout = () => {
   if (selectedItems.value.length === 0) {
     ElMessage.warning('請先勾選要結帳的商品')
@@ -74,9 +80,13 @@ const handleCheckout = () => {
   checkoutDialogVisible.value = true
 }
 
-// 7. ✅ 新增：彈窗內的「確認兌換」執行邏輯
+// 處理地圖回傳地址
+const handleAddressSelected = (address) => {
+  checkoutForm.value.address = address
+}
+
+// 7. 確認兌換執行邏輯
 const confirmBatchExchange = async () => {
-  // 驗證地址
   if (checkoutForm.value.deliveryMethod === 2 && !checkoutForm.value.address) {
     ElMessage.warning('請輸入收貨地址')
     return
@@ -86,7 +96,7 @@ const confirmBatchExchange = async () => {
     const payload = {
       empId: localStorage.getItem('uid'),
       items: selectedItems.value.map(i => ({ productId: i.productId, quantity: i.quantity })),
-      deliveryMethod: checkoutForm.value.deliveryMethod, // ✅ 這裡會讀取使用者的選擇
+      deliveryMethod: checkoutForm.value.deliveryMethod,
       address: checkoutForm.value.address
     }
     
@@ -95,13 +105,12 @@ const confirmBatchExchange = async () => {
     if (res.code === 1) {
       ElMessage.success('訂單已提交成功！')
       
-      // 更新本地緩存與 Layout 顯示
       const currentPoints = parseInt(localStorage.getItem('points') || 0)
       localStorage.setItem('points', currentPoints - totalPoints.value)
-      window.dispatchEvent(new Event('update-points')) // 通知 Layout 更新
+      window.dispatchEvent(new Event('update-points'))
       
       checkoutDialogVisible.value = false
-      router.push('/order/my') // 跳轉到我的訂單
+      router.push('/order/my')
     } else {
       ElMessage.error(res.msg || '兌換失敗')
     }
@@ -130,7 +139,7 @@ onMounted(() => getCartList())
       >
         <el-table-column type="selection" width="55" />
         
-        <el-table-column label="商品資訊" min-width="250">
+        <el-table-column label="商品資訊" min-width="200">
           <template #default="{ row }">
             <div class="product-info">
               <el-image :src="row.productImage" class="p-img" fit="cover" />
@@ -183,17 +192,22 @@ onMounted(() => getCartList())
       <el-form :model="checkoutForm" label-position="top" style="margin-top: 20px;">
         <el-form-item label="領取方式">
           <el-radio-group v-model="checkoutForm.deliveryMethod">
-            <el-radio :label="1" border>🏢 公司自取</el-radio>
-            <el-radio :label="2" border>🚚 寄送到家</el-radio>
+            <el-radio :label="1" border>公司自取</el-radio>
+            <el-radio :label="2" border>🚚 宅配</el-radio>
           </el-radio-group>
         </el-form-item>
 
         <el-form-item label="收貨地址" v-if="checkoutForm.deliveryMethod === 2" required>
-          <el-input 
-            v-model="checkoutForm.address" 
-            placeholder="請輸入詳細地址 (縣市/區/路/號/樓)" 
-            :prefix-icon="Location"
-          />
+          <div style="display: flex; gap: 10px; width: 100%;">
+            <el-input 
+              v-model="checkoutForm.address" 
+              placeholder="請輸入詳細地址" 
+              :prefix-icon="Location"
+            />
+            <el-button type="success" :icon="MapLocation" @click="mapVisible = true" plain>
+              地圖
+            </el-button>
+          </div>
         </el-form-item>
       </el-form>
 
@@ -204,6 +218,12 @@ onMounted(() => getCartList())
         </span>
       </template>
     </el-dialog>
+
+    <MapSelector 
+      v-model:visible="mapVisible" 
+      :api-key="googleApiKey"
+      @confirm-address="handleAddressSelected"
+    />
   </div>
 </template>
 

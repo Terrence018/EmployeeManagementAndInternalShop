@@ -14,8 +14,8 @@ const userInfo = ref({
   gender: 1,
   salary: 0,
   phone: '',
-  email: '',    // 信箱
-  password: ''  // 密碼 (僅用於修改)
+  email: '',    
+  password: ''  
 })
 
 // 驗證彈窗控制
@@ -24,7 +24,7 @@ const verifyCode = ref('')
 const countdown = ref(0)
 let timer = null
 
-// --- 方法 ---
+// 方法 
 
 // 1. 獲取個人資訊
 const loadInfo = async () => {

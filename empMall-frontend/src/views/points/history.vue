@@ -48,11 +48,11 @@ onMounted(() => {
 
         <el-table-column label="變動點數" width="120" align="center">
           <template #default="scope">
-            <span v-if="scope.row.type === 1" style="color: #67C23A; font-weight: bold; font-size: 16px;">
+            <span v-if="scope.row.points > 0" style="color: #67C23A; font-weight: bold; font-size: 16px;">
               +{{ scope.row.points }}
             </span>
             <span v-else style="color: #F56C6C; font-weight: bold; font-size: 16px;">
-              -{{ scope.row.points }}
+              {{ scope.row.points }}
             </span>
           </template>
         </el-table-column>
@@ -74,11 +74,21 @@ onMounted(() => {
 
         <el-table-column label="來源" width="140" align="center">
           <template #default="scope">
-            <el-tag v-if="scope.row.type === 1" type="success" effect="plain">
-              管理員發放
-            </el-tag>
-            <el-tag v-else type="warning" effect="plain">
+            <div v-if="scope.row.type === 1">
+              <el-tag v-if="scope.row.points > 0" type="success" effect="plain">
+                管理員發放
+              </el-tag>
+              <el-tag v-else type="danger" effect="plain">
+                管理員調整
+              </el-tag>
+            </div>
+
+            <el-tag v-else-if="scope.row.type === 2" type="warning" effect="plain">
               商城兌換
+            </el-tag>
+
+            <el-tag v-else type="info" effect="plain">
+              系統變動
             </el-tag>
           </template>
         </el-table-column>

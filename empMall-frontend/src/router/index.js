@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { ElMessage } from 'element-plus' // 引入消息提示（可選）
+import { ElMessage } from 'element-plus' // 引入消息提示
 
 // --- 引入 View 組件 ---
 import LayoutView from '@/views/layout/index.vue'
@@ -22,6 +22,8 @@ import PointsOverviewView from '@/views/points/overview.vue'
 import EmpReportView from '@/views/report/emp/index.vue'
 import LogView from '@/views/log/index.vue'
 import SalesView from '@/views/stats/sales.vue'
+import ProductLogView from '@/views/log/ProductLog.vue'
+
 
 // 5. 員工專區
 import MallView from '@/views/mall/index.vue'
@@ -44,24 +46,25 @@ const router = createRouter({
         // --- 首頁 (大家都能看) ---
         { path: 'home', name: 'home', component: IndexView },
 
-        // --- 🔒 1. 部門及員工管理 (管理員專用) ---
+        // --- 1. 部門及員工管理 (管理員專用) ---
         { path: 'dept', name: 'dept', component: DeptView, meta: { requiresAdmin: true } },
         { path: 'emp', name: 'emp', component: EmpView, meta: { requiresAdmin: true } },
 
-        // --- 🔒 2. 商城營運管理 (管理員專用) ---
+        // --- 2. 商城營運管理 (管理員專用) ---
         { path: 'mall/manage', name: 'MallManage', component: MallManageView, meta: { requiresAdmin: true } },
         { path: 'order/manage', name: 'OrderManage', component: OrderManageView, meta: { requiresAdmin: true } },
 
-        // --- 🔒 3. 點數管理 (管理員專用) ---
+        // --- 3. 點數管理 (管理員專用) ---
         { path: 'points/overview', name: 'PointsOverview', component: PointsOverviewView, meta: { requiresAdmin: true } },
         { path: 'points/manage', name: 'PointsManage', component: PointsManageView, meta: { requiresAdmin: true } },
 
-        // --- 🔒 4. 資訊統計管理 (管理員專用) ---
+        // --- 4. 資訊統計管理 (管理員專用) ---
         { path: 'report/emp', name: 'EmpReport', component: EmpReportView, meta: { requiresAdmin: true } },
         { path: 'log', name: 'log', component: LogView, meta: { requiresAdmin: true } },
         { path: 'stats/sales', name: 'Sales', component: SalesView, meta: { requiresAdmin: true } },
-        
-        // --- 🔓 5. 員工專用功能 (一般員工及管理員都能看) ---
+        { path: 'product', name: 'ProductLog', component: ProductLogView, meta: { requiresAdmin: true } },
+
+        // --- 5. 員工專用功能 (一般員工及管理員都能看) ---
         { path: 'mall', name: 'mall', component: MallView },
         { path: 'order/my', name: 'MyOrders', component: OrderView },
         { path: 'points/history', name: 'PointsHistory', component: PointsHistoryView },
@@ -91,10 +94,10 @@ router.beforeEach((to, from, next) => {
     // 如果角色不是 1 (管理員)，則攔截並導回首頁
     if (userRole !== '1') {
       ElMessage.error('權限不足，無法訪問該頁面')
-      return next('/home') // 或者是你指定的頁面
+      return next('/home') 
     }
   }
-
+  
   // 4. 校驗通過，放行
   next()
 })

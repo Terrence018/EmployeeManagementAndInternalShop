@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-// ✅ 新增：引入圖示與 request 工具
+// 引入圖示與 request 工具
 import { Message, Key, Lock } from '@element-plus/icons-vue'
 import request from '@/utils/request'
 import { loginApi } from '@/api/login'
@@ -12,7 +12,7 @@ const router = useRouter()
 // 定義登入表單數據
 const loginForm = ref({ username: '', password: '' })
 
-// --- 登入邏輯 ---
+// 登入邏輯
 const handleLogin = async () => {
   if (!loginForm.value.username || !loginForm.value.password) {
     ElMessage.warning('請輸入帳號和密碼')
@@ -43,7 +43,7 @@ const handleResetForm = () => {
   loginForm.value = { username: '', password: '' }
 }
 
-// --- ✅ 新增：忘記密碼 / 重置密碼邏輯 ---
+// 忘記密碼 / 重置密碼
 const forgotVisible = ref(false)
 const resetForm = ref({
   email: '',
@@ -111,6 +111,7 @@ const handleResetPassword = async () => {
     <div class="login-form">
       <el-form label-width="80px">
         <p class="title">員工管理與內部商城系統</p>
+        
         
         <el-form-item label="帳號" prop="username">
           <el-input 

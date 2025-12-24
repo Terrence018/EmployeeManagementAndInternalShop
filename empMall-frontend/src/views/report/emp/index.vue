@@ -1,62 +1,109 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue'
-// 1. 引入 Chart.js 核心元件和 Vue 封裝元件
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
-import { Pie } from 'vue-chartjs'
-import request from '@/utils/request'
-import { PieChart, DataAnalysis, User, OfficeBuilding } from '@element-plus/icons-vue'
+import { ref, onMounted } from 'vue'
+// 1. 引入 Chart.js 核心元件
+import { 
+  Chart as ChartJS, 
+  ArcElement, // 圓餅圖用
+  BarElement, // 長條圖用
+  LineElement, // 折線圖用
+  PointElement, // 折線圖的點
+  CategoryScale, // X軸
+  LinearScale,   // Y軸
+  Tooltip, 
+  Legend,
+  Title
+} from 'chart.js'
 
-// 2. 註冊 Chart.js 必須的元件 (圓餅圖需要 ArcElement, Tooltip, Legend)
-ChartJS.register(ArcElement, Tooltip, Legend)
+// 2. 引入 Vue-Chartjs 的組件
+import { Pie, Bar, Line } from 'vue-chartjs'
+import request from '@/utils/request'
+
+// 3. 引入圖示
+import { 
+  DataAnalysis, User, OfficeBuilding, 
+  Money, Trophy, TrendCharts 
+} from '@element-plus/icons-vue'
+
+// 4. 註冊所有需要的 Chart.js 元件
+ChartJS.register(
+  ArcElement, BarElement, LineElement, PointElement, 
+  CategoryScale, LinearScale, Tooltip, Legend, Title
+)
 
 // --- 數據定義 ---
 const loading = ref(false)
-const currentType = ref('gender') // 當前統計類型: gender 或 dept
 
-// Chart.js 需要的數據格式
-const chartData = ref({
-  labels: [],
-  datasets: [{
-    backgroundColor: [],
-    data: []
-  }]
-})
+// 各個圖表的數據 Ref
+const genderData = ref({ labels: [], datasets: [] })
+const deptData = ref({ labels: [], datasets: [] })
+const salaryData = ref({ labels: [], datasets: [] })
+const rankData = ref({ labels: [], datasets: [] })
+const trendData = ref({ labels: [], datasets: [] })
 
-// Chart.js 的選項設定
-const chartOptions = ref({
+// --- 圖表選項設定 (Options) ---
+
+// 1. 圓餅圖通用選項 (隱藏過大的 Legend，避免佔位)
+const pieOptions = {
   responsive: true,
-  maintainAspectRatio: false, // 允許自定義高度
+  maintainAspectRatio: false,
   plugins: {
-    legend: {
-      position: 'bottom', // 圖例放下面
-      labels: {
-        font: {
-          size: 14
-        }
-      }
-    }
+    legend: { position: 'bottom' }
   }
-})
+}
 
-// 預定義一些好看的顏色池
+// 2. 點數排行 (橫向長條圖)
+const rankOptions = {
+  indexAxis: 'y', // 讓長條圖變成橫向
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { display: false } // 排行榜不需要圖例
+  },
+  scales: {
+    x: { beginAtZero: true } // X軸從0開始
+  }
+}
+
+// 3. 入職趨勢 (折線圖)
+const trendOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { display: false }
+  },
+  scales: {
+    y: { beginAtZero: true, ticks: { stepSize: 1 } } // Y軸確保是整數
+  }
+}
+
+// 顏色池
 const colorPalette = [
   '#409EFF', '#67C23A', '#E6A23C', '#F56C6C', 
   '#909399', '#36cfc9', '#9254de', '#f759ab'
 ]
 
-// --- 方法 ---
+// 方法 
 
-// 獲取統計數據
-const fetchData = async () => {
+// 初始化：一次獲取所有數據
+const initDashboard = async () => {
   loading.value = true
   try {
-    // 根據目前選擇的類型決定呼叫哪個 API
-    const url = currentType.value === 'gender' ? '/emps/report/gender' : '/emps/report/dept'
-    const res = await request.get(url)
-    
-    if (res.code === 1) {
-      processDataToChart(res.data)
-    }
+    // 使用 Promise.all 並行請求 5 個接口，速度更快
+    const [resGender, resDept, resSalary, resRank, resTrend] = await Promise.all([
+      request.get('/emps/report/gender'),
+      request.get('/emps/report/dept'),
+      request.get('/emps/report/salary'),
+      request.get('/emps/report/pointsRank'),
+      request.get('/emps/report/entryTrend')
+    ])
+
+    // 分別處理數據
+    if (resGender.code === 1) genderData.value = processPieData(resGender.data)
+    if (resDept.code === 1) deptData.value = processPieData(resDept.data)
+    if (resSalary.code === 1) salaryData.value = processPieData(resSalary.data)
+    if (resRank.code === 1) processRankData(resRank.data)
+    if (resTrend.code === 1) processTrendData(resTrend.data)
+
   } catch (error) {
     console.error("獲取統計數據失敗", error)
   } finally {
@@ -64,123 +111,175 @@ const fetchData = async () => {
   }
 }
 
-// 將後端資料轉換為 Chart.js 需要的格式
-const processDataToChart = (rawData) => {
-  const labels = []
-  const data = []
-  const backgroundColor = []
+// 處理圓餅圖數據 (性別、部門、薪資)
+const processPieData = (rawData) => {
+  if (!rawData || rawData.length === 0) return { labels: [], datasets: [] }
+  
+  const labels = rawData.map(item => item.categoryName)
+  const data = rawData.map(item => item.count)
+  const bgColors = rawData.map((_, i) => colorPalette[i % colorPalette.length])
 
-  // 如果後端回傳空陣列，需處理防呆
-  if (!rawData || rawData.length === 0) {
-    chartData.value = { labels: [], datasets: [] }
-    return
-  }
-
-  rawData.forEach((item, index) => {
-    labels.push(item.categoryName) // 例如: ["男", "女"]
-    data.push(item.count)          // 例如: [10, 5]
-    // 循環使用顏色池
-    backgroundColor.push(colorPalette[index % colorPalette.length])
-  })
-
-  // 更新圖表數據 reactive 物件
-  chartData.value = {
-    labels: labels,
+  return {
+    labels,
     datasets: [{
-      backgroundColor: backgroundColor,
+      backgroundColor: bgColors,
       data: data,
       borderWidth: 2,
-      borderColor: '#ffffff'
+      borderColor: '#fff'
     }]
   }
 }
 
-// 監聽切換按鈕，變動時重新抓資料
-watch(currentType, () => {
-  fetchData()
-})
+// 處理排行榜數據 (長條圖)
+const processRankData = (rawData) => {
+  if (!rawData || rawData.length === 0) return
+  
+  rankData.value = {
+    labels: rawData.map(item => item.categoryName), // 員工姓名
+    datasets: [{
+      label: '持有點數',
+      data: rawData.map(item => item.count),
+      backgroundColor: '#E6A23C', // 金色
+      borderRadius: 4
+    }]
+  }
+}
 
-// 初始化
+// 處理趨勢圖數據 (折線圖)
+const processTrendData = (rawData) => {
+  if (!rawData || rawData.length === 0) return
+
+  trendData.value = {
+    labels: rawData.map(item => item.categoryName), // 年份
+    datasets: [{
+      label: '入職人數',
+      data: rawData.map(item => item.count),
+      borderColor: '#409EFF',
+      backgroundColor: 'rgba(64, 158, 255, 0.2)',
+      fill: true, // 填充下方區域
+      tension: 0.4 // 平滑曲線
+    }]
+  }
+}
+
 onMounted(() => {
-  fetchData()
+  initDashboard()
 })
 </script>
 
 <template>
-  <div class="report-container">
+  <div class="dashboard-container" v-loading="loading">
     
-    <el-card shadow="never" class="control-panel">
-      <div class="panel-header">
-        <el-icon :size="24" color="#409EFF"><DataAnalysis /></el-icon>
-        <span style="margin-left: 10px; font-weight: bold; font-size: 18px;">員工結構分析</span>
-      </div>
-      
-      <div class="chart-controls">
-        <el-radio-group v-model="currentType" size="large">
-          <el-radio-button label="gender">
-            <el-icon><User /></el-icon> 性別分佈
-          </el-radio-button>
-          <el-radio-button label="dept">
-            <el-icon><OfficeBuilding /></el-icon> 部門分佈
-          </el-radio-button>
-        </el-radio-group>
-        <span class="tips">點擊切換查看不同維度的統計資訊</span>
-      </div>
-    </el-card>
+    <div class="page-header">
+      <el-icon :size="28" color="#409EFF"><DataAnalysis /></el-icon>
+      <h2>員工數據戰情室</h2>
+    </div>
 
-    <el-card shadow="hover" style="margin-top: 20px;" v-loading="loading">
-      <div class="chart-wrapper">
-        <Pie 
-          v-if="chartData.labels && chartData.labels.length > 0"
-          :data="chartData" 
-          :options="chartOptions" 
-        />
-        
-        <el-empty v-else description="暫無統計數據，請確認後端是否有資料" />
-      </div>
-    </el-card>
+    <el-row :gutter="20" class="chart-row">
+      <el-col :span="8">
+        <el-card shadow="hover" class="chart-card">
+          <template #header>
+            <div class="card-header"><el-icon><OfficeBuilding /></el-icon> 部門人數分佈</div>
+          </template>
+          <div class="chart-box">
+            <Pie v-if="deptData.labels.length" :data="deptData" :options="pieOptions" />
+          </div>
+        </el-card>
+      </el-col>
+
+      <el-col :span="8">
+        <el-card shadow="hover" class="chart-card">
+          <template #header>
+            <div class="card-header"><el-icon><User /></el-icon> 性別比例</div>
+          </template>
+          <div class="chart-box">
+            <Pie v-if="genderData.labels.length" :data="genderData" :options="pieOptions" />
+          </div>
+        </el-card>
+      </el-col>
+
+      <el-col :span="8">
+        <el-card shadow="hover" class="chart-card">
+          <template #header>
+            <div class="card-header"><el-icon><Money /></el-icon> 薪資區間分佈</div>
+          </template>
+          <div class="chart-box">
+            <Pie v-if="salaryData.labels.length" :data="salaryData" :options="pieOptions" />
+          </div>
+        </el-card>
+      </el-col>
+    </el-row>
+
+    <el-row :gutter="20" class="chart-row">
+      
+      <el-col :span="14">
+        <el-card shadow="hover" class="chart-card">
+          <template #header>
+            <div class="card-header"><el-icon><TrendCharts /></el-icon> 年度入職成長趨勢</div>
+          </template>
+          <div class="chart-box lg">
+            <Line v-if="trendData.labels.length" :data="trendData" :options="trendOptions" />
+          </div>
+        </el-card>
+      </el-col>
+
+      <el-col :span="10">
+        <el-card shadow="hover" class="chart-card">
+          <template #header>
+            <div class="card-header"><el-icon color="#E6A23C"><Trophy /></el-icon> 員工點數財富榜 Top 10</div>
+          </template>
+          <div class="chart-box lg">
+            <Bar v-if="rankData.labels.length" :data="rankData" :options="rankOptions" />
+          </div>
+        </el-card>
+      </el-col>
+
+    </el-row>
 
   </div>
 </template>
 
 <style scoped>
-.report-container {
+.dashboard-container {
   padding: 20px;
   background-color: #f5f7fa;
   min-height: calc(100vh - 80px);
 }
 
-.control-panel {
-  margin-bottom: 20px;
-}
-
-.panel-header {
+.page-header {
   display: flex;
-  align-items: center;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 15px;
-  margin-bottom: 20px;
-}
-
-.chart-controls {
-  text-align: center;
-  display: flex;
-  flex-direction: column;
   align-items: center;
   gap: 10px;
+  margin-bottom: 25px;
+  padding-left: 10px;
+}
+.page-header h2 {
+  margin: 0;
+  color: #303133;
 }
 
-.tips {
-  font-size: 12px;
-  color: #909399;
+.chart-row {
+  margin-bottom: 20px;
 }
 
-.chart-wrapper {
-  /* 這裡控制圖表的高度，maintainAspectRatio: false 時生效 */
-  height: 500px; 
+.chart-card {
+  height: 100%;
+}
+
+.card-header {
   display: flex;
-  justify-content: center;
   align-items: center;
-  padding: 20px;
+  font-weight: bold;
+  font-size: 16px;
+  gap: 8px;
+}
+
+.chart-box {
+  height: 250px; /* 圓餅圖的高度 */
+  position: relative;
+}
+
+.chart-box.lg {
+  height: 350px; /* 折線圖和長條圖的高度，給高一點比較好看 */
 }
 </style>

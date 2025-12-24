@@ -6,14 +6,14 @@ import { Search, Coin, User, Ticket } from '@element-plus/icons-vue'
 const loading = ref(false)
 const tableData = ref([])
 const total = ref(0)
-const deptList = ref([]) // ✅ 新增：用來存部門列表
+const deptList = ref([]) 
 const pageParams = reactive({
   page: 1,
   pageSize: 10,
   name: ''
 })
 
-// ✅ 1. 獲取部門列表 (用於 ID 轉 名稱)
+// 1. 獲取部門列表 (用於 ID 轉 名稱)
 const getDeptList = async () => {
   const res = await request.get('/dept')
   if (res.code === 1) {
@@ -46,7 +46,7 @@ const handlePageChange = (page) => {
 }
 
 onMounted(() => {
-  getDeptList() // ✅ 先載入部門
+  getDeptList() // 先載入部門
   loadData()    // 再載入員工
 })
 </script>

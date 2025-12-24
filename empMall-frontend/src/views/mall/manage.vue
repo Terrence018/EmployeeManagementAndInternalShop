@@ -1,13 +1,23 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue'
-import { Plus, Edit, Delete, Upload, Picture as IconPicture } from '@element-plus/icons-vue'
+import { ref, onMounted } from 'vue' 
+import { Plus, Edit, Delete, Picture as IconPicture, Search } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import request from '@/utils/request'
 
 // --- 數據定義 ---
 const loading = ref(false)
 const tableData = ref([])
-const searchQuery = ref('')
+
+// 篩選條件
+const searchQuery = ref('') // 搜尋關鍵字
+const selectedCategory = ref('') // 分類篩選變數
+
+// 分頁變數
+const currentPage = ref(1)
+const pageSize = ref(10)
+const total = ref(0)
+
+// 彈窗控制
 const dialogVisible = ref(false)
 const dialogTitle = ref('新增商品')
 
@@ -19,53 +29,105 @@ const formData = ref({
   image: '',
   description: '',
   pointsNeeded: 100,
-  category: 1, // 預設 3C
-  status: 1,   // 預設上架
-  stock: 50    // ✅ 新增：預設庫存 50
+  category: 1, 
+  status: 1,   
+  stock: 50    
 })
 
-// 分類映射 (顯示用)
+// 分類選項 (給上方篩選下拉選單用)
+const categoryOptions = [
+  { label: '全部分類', value: '' }, // 空字串代表查全部
+  { label: '3C 數碼', value: 1 },
+  { label: '辦公用品', value: 2 },
+  { label: '食品飲料', value: 3 },
+  { label: '電子票券', value: 4 },
+  { label: '生活百貨', value: 5 },
+  { label: '圖書雜誌', value: 6 },
+]
+
+// 分類映射 (給表格顯示用)
 const categoryMap = {
-  1: '📱 3C 數碼',
-  2: '📎 辦公用品',
-  3: '🥤 食品飲料',
-  4: '🎫 電子票券'
+  1: '3C 數碼',
+  2: '辦公用品',
+  3: '食品飲料',
+  4: '電子票券',
+  5: '生活百貨',
+  6: '圖書雜誌'
 }
 
-// 表單驗證規則
+// AWS 上傳設定
+const uploadAction = 'http://localhost:8080/upload' 
+const uploadHeaders = {
+  token: localStorage.getItem('token') 
+}
+
+const handleUploadSuccess = (response) => {
+  if (response.code === 1) {
+    formData.value.image = response.data 
+    ElMessage.success('圖片上傳成功！')
+  } else {
+    ElMessage.error(response.msg || '上傳失敗')
+  }
+}
+
+const beforeUpload = (rawFile) => {
+  if (rawFile.type !== 'image/jpeg' && rawFile.type !== 'image/png') {
+    ElMessage.error('圖片必須是 JPG 或 PNG 格式!')
+    return false
+  } else if (rawFile.size / 1024 / 1024 > 5) {
+    ElMessage.error('圖片大小不能超過 5MB!')
+    return false
+  }
+  return true
+}
+
 const rules = {
   name: [{ required: true, message: '請輸入商品名稱', trigger: 'blur' }],
   pointsNeeded: [{ required: true, message: '請輸入所需點數', trigger: 'blur' }],
   category: [{ required: true, message: '請選擇分類', trigger: 'change' }],
-  image: [{ required: true, message: '請輸入圖片網址', trigger: 'blur' }],
-  stock: [{ required: true, message: '請輸入初始庫存', trigger: 'blur' }] // ✅ 新增：庫存驗證
+  image: [{ required: true, message: '請上傳商品圖片', trigger: 'change' }], 
+  stock: [{ required: true, message: '請輸入初始庫存', trigger: 'blur' }]
 }
 
-// --- 方法 ---
+//方法
 
-// 1. 查詢列表
+// 1. 查詢列表 
 const getList = async () => {
   loading.value = true
   try {
-    const res = await request.get('/products')
+    const res = await request.get('/products', {
+      params: {
+        page: currentPage.value,
+        pageSize: pageSize.value,
+        keyword: searchQuery.value || null, // 傳送關鍵字
+        category: selectedCategory.value || null // ✅ 傳送分類 ID
+      }
+    })
+    
     if (res.code === 1) {
-      tableData.value = res.data
+      tableData.value = res.data.items 
+      total.value = res.data.total
     }
   } finally {
     loading.value = false
   }
 }
 
-// 前端搜尋過濾
-const filteredData = computed(() => {
-  if (!searchQuery.value) return tableData.value
-  return tableData.value.filter(item => item.name.includes(searchQuery.value))
-})
+// 當篩選條件改變時 (分類切換 / 搜尋輸入)
+const handleFilterChange = () => {
+  currentPage.value = 1 // 重置回第一頁
+  getList()
+}
+
+// 換頁事件
+const handlePageChange = (page) => {
+  currentPage.value = page
+  getList()
+}
 
 // 2. 開啟新增彈窗
 const handleAdd = () => {
   dialogTitle.value = '新增商品'
-  // ✅ 確保重置時包含 stock
   formData.value = { 
     id: null, 
     name: '', 
@@ -82,12 +144,11 @@ const handleAdd = () => {
 // 3. 開啟編輯彈窗
 const handleEdit = (row) => {
   dialogTitle.value = '編輯商品'
-  // 深拷貝，避免修改表單時直接影響表格顯示
   formData.value = JSON.parse(JSON.stringify(row))
   dialogVisible.value = true
 }
 
-// 4. 提交表單 (新增或修改)
+// 4. 提交表單
 const handleSubmit = async () => {
   await formRef.value.validate(async (valid) => {
     if (valid) {
@@ -107,7 +168,6 @@ const handleSubmit = async () => {
           ElMessage.error(res.msg || '操作失敗')
         }
       } catch (error) {
-        console.error(error)
         ElMessage.error('系統錯誤')
       }
     }
@@ -138,7 +198,7 @@ const handleStatusChange = async (row) => {
     if (res.code === 1) {
       ElMessage.success(row.status === 1 ? '已上架' : '已下架')
     } else {
-      row.status = row.status === 1 ? 0 : 1
+      row.status = row.status === 1 ? 0 : 1 
       ElMessage.error('狀態更新失敗')
     }
   } catch (e) {
@@ -156,16 +216,41 @@ onMounted(() => {
   <div class="manage-container">
     <div class="header-actions">
       <el-button type="primary" :icon="Plus" @click="handleAdd">新增商品</el-button>
-      <el-input 
-        v-model="searchQuery" 
-        placeholder="搜尋商品名稱..." 
-        style="width: 250px; margin-left: 15px;" 
-        clearable 
-      />
+      
+      <div style="display: flex; gap: 15px; margin-left: 20px;">
+        
+        <el-select 
+          v-model="selectedCategory" 
+          placeholder="篩選分類" 
+          style="width: 150px;"
+          clearable
+          @change="handleFilterChange"
+          @clear="handleFilterChange"
+        >
+          <el-option
+            v-for="opt in categoryOptions"
+            :key="opt.value"
+            :label="opt.label"
+            :value="opt.value"
+          />
+        </el-select>
+
+        <div style="display: flex; gap: 10px;">
+          <el-input 
+            v-model="searchQuery" 
+            placeholder="搜尋商品名稱..." 
+            style="width: 200px;" 
+            clearable 
+            @clear="handleFilterChange"
+            @keyup.enter="handleFilterChange"
+          />
+          <el-button :icon="Search" circle @click="handleFilterChange" />
+        </div>
+      </div>
     </div>
 
     <el-card shadow="never" style="margin-top: 20px;">
-      <el-table :data="filteredData" v-loading="loading" stripe style="width: 100%">
+      <el-table :data="tableData" v-loading="loading" stripe style="width: 100%">
         
         <el-table-column prop="id" label="ID" width="70" align="center" />
         
@@ -227,47 +312,59 @@ onMounted(() => {
           </template>
         </el-table-column>
       </el-table>
+
+      <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+        <el-pagination
+          background
+          layout="total, prev, pager, next"
+          :total="total"
+          :page-size="pageSize"
+          v-model:current-page="currentPage"
+          @current-change="handlePageChange"
+        />
+      </div>
+
     </el-card>
 
     <el-dialog v-model="dialogVisible" :title="dialogTitle" width="500px">
       <el-form :model="formData" :rules="rules" ref="formRef" label-width="100px">
-        
         <el-form-item label="商品名稱" prop="name">
           <el-input v-model="formData.name" placeholder="請輸入商品名稱" />
         </el-form-item>
-
         <el-form-item label="當前庫存" prop="stock">
           <el-input-number v-model="formData.stock" :min="0" :precision="0" style="width: 100%" />
         </el-form-item>
-
         <el-form-item label="所需點數" prop="pointsNeeded">
           <el-input-number v-model="formData.pointsNeeded" :min="1" style="width: 100%" />
         </el-form-item>
-
         <el-form-item label="商品分類" prop="category">
           <el-select v-model="formData.category" placeholder="請選擇分類" style="width: 100%;">
-            <el-option label="📱 3C 數碼" :value="1" />
-            <el-option label="📎 辦公用品" :value="2" />
-            <el-option label="🥤 食品飲料" :value="3" />
-            <el-option label="🎫 電子票券" :value="4" />
+            <el-option label="3C 數碼" :value="1" />
+            <el-option label="辦公用品" :value="2" />
+            <el-option label="食品飲料" :value="3" />
+            <el-option label="電子票券" :value="4" />
+            <el-option label="生活百貨" :value="5" />
+            <el-option label="圖書雜誌" :value="6" />
           </el-select>
         </el-form-item>
-
-        <el-form-item label="圖片連結" prop="image">
-          <el-input v-model="formData.image" placeholder="請輸入圖片 URL">
-            <template #prefix><el-icon><Upload /></el-icon></template>
-          </el-input>
-          <div v-if="formData.image" style="margin-top: 10px;">
-            <img :src="formData.image" style="height: 100px; border-radius: 4px; border: 1px solid #eee;" />
-          </div>
+        <el-form-item label="商品圖片" prop="image">
+          <el-upload
+            class="avatar-uploader"
+            :action="uploadAction"
+            name="image" 
+            :headers="uploadHeaders"
+            :show-file-list="false"
+            :on-success="handleUploadSuccess"
+            :before-upload="beforeUpload"
+          >
+            <img v-if="formData.image" :src="formData.image" class="avatar" />
+            <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
+          </el-upload>
         </el-form-item>
-
         <el-form-item label="商品描述">
           <el-input v-model="formData.description" type="textarea" rows="3" />
         </el-form-item>
-
       </el-form>
-
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="dialogVisible = false">取消</el-button>
@@ -279,24 +376,19 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.manage-container {
-  padding: 20px;
-  background-color: #fff;
-  border-radius: 8px;
+/* 樣式保持不變 */
+.manage-container { padding: 20px; background-color: #fff; border-radius: 8px; }
+.header-actions { display: flex; align-items: center; }
+.image-slot { display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; background: #f5f7fa; color: #909399; }
+.avatar-uploader .el-upload {
+  border: 1px dashed var(--el-border-color);
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: var(--el-transition-duration-fast);
 }
-
-.header-actions {
-  display: flex;
-  align-items: center;
-}
-
-.image-slot {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 100%;
-  background: #f5f7fa;
-  color: #909399;
-}
+.avatar-uploader .el-upload:hover { border-color: var(--el-color-primary); }
+.avatar-uploader-icon { font-size: 28px; color: #8c939d; width: 150px; height: 150px; text-align: center; line-height: 150px; }
+.avatar { width: 150px; height: 150px; display: block; object-fit: cover; }
 </style>

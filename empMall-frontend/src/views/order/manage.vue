@@ -45,7 +45,6 @@ const filteredOrders = computed(() => {
     // 狀態篩選
     const matchStatus = filterStatus.value === '' || item.status === filterStatus.value
     // 關鍵字搜尋 (搜員工名 或 商品名)
-    // 注意：因為現在 items 是陣列，搜尋商品名稱需要遍歷 items
     const keyword = searchQuery.value.toLowerCase()
     
     // 搜尋商品名稱邏輯：只要任一商品名稱包含關鍵字即可
@@ -58,20 +57,44 @@ const filteredOrders = computed(() => {
   })
 })
 
-// 3. 更新訂單狀態 (發貨/完成/取消)
+// 修改後的更新訂單狀態 (區分普通更新與取消)
 const handleUpdateStatus = (row, newStatus) => {
   let actionText = ''
-  if (newStatus === 2) actionText = '發貨'
-  if (newStatus === 3) actionText = '完成'
-  if (newStatus === 4) actionText = '取消'
+  let confirmText = ''
+  
+  if (newStatus === 2) {
+    actionText = '發貨'
+    confirmText = '確定要將此訂單標記為「已發貨」嗎？'
+  } else if (newStatus === 3) {
+    actionText = '完成'
+    confirmText = '確定訂單已完成嗎？'
+  } else if (newStatus === 4) {
+    actionText = '取消'
+    // 提示語加強，讓管理員知道會退款
+    confirmText = '確定要「取消」此訂單嗎？系統將自動退還點數並回補庫存。'
+  }
 
-  ElMessageBox.confirm(`確定要將此訂單標記為「${actionText}」嗎？`, '提示', {
-    type: 'warning'
+  ElMessageBox.confirm(confirmText, '提示', {
+    confirmButtonText: '確定',
+    cancelButtonText: '取消',
+    type: newStatus === 4 ? 'warning' : 'info' // 取消操作用黃色警告圖示
   }).then(async () => {
-    const res = await request.put(`/orders/${row.id}/${newStatus}`)
+    let res;
+
+    // 關鍵分流邏輯：
+    if (newStatus === 4) {
+      // 如果是取消，呼叫專門的 Cancel 接口 (包含退款邏輯)
+      res = await request.put(`/orders/cancel/${row.id}`)
+    } else {
+      // 如果是發貨或完成，呼叫原本的狀態更新接口
+      res = await request.put(`/orders/${row.id}/${newStatus}`)
+    }
+
     if (res.code === 1) {
       ElMessage.success(`${actionText}成功`)
-      row.status = newStatus 
+      // 為了確保庫存和狀態都顯示正確，建議重新加載整個列表
+      // row.status = newStatus // 這是簡單更新，但為了保險起見↓
+      getAllOrders() 
     } else {
       ElMessage.error(res.msg || '操作失敗')
     }
@@ -88,7 +111,7 @@ onMounted(() => {
     <div class="toolbar">
       <el-input 
         v-model="searchQuery" 
-        placeholder="🔍 搜尋員工或商品..." 
+        placeholder=" 搜尋員工或商品..." 
         style="width: 250px;" 
         clearable
       />
@@ -105,13 +128,13 @@ onMounted(() => {
         
         <el-table-column prop="id" label="訂單號" width="80" align="center" />
         
-        <el-table-column label="下單員工" width="100" align="center">
+        <el-table-column label="下單員工" width="130" align="center">
           <template #default="scope">
             <span style="font-weight: bold;">{{ scope.row.empName }}</span>
           </template>
         </el-table-column>
 
-        <el-table-column label="兌換商品" min-width="160">
+        <el-table-column label="兌換商品" min-width="150">
           <template #default="scope">
             <div v-if="scope.row.items && scope.row.items.length > 0">
               <div v-for="(item, index) in scope.row.items" :key="index" style="margin-bottom: 5px;">
@@ -129,18 +152,18 @@ onMounted(() => {
           </template>
         </el-table-column>
 
-        <el-table-column prop="totalPoints" label="消耗點數" width="120" sortable align="center">
+        <el-table-column prop="totalPoints" label="消耗點數" width="80" sortable align="center">
           <template #default="scope">
             <span style="color: #E6A23C; font-weight: bold;">💎 {{ scope.row.totalPoints }}</span>
           </template>
         </el-table-column>
 
-        <el-table-column label="取貨方式" width="150" align="center">
+        <el-table-column label="取貨方式" width="120" align="center">
           <template #default="scope">
-            <el-tag v-if="scope.row.deliveryMethod === 1" type="info" size="small" effect="plain">🏢 公司自取</el-tag>
+            <el-tag v-if="scope.row.deliveryMethod === 1" type="info" size="small" effect="plain">公司自取</el-tag>
             <el-popover v-else placement="top" :width="200" trigger="hover">
               <template #reference>
-                <el-tag type="warning" size="small" effect="plain">🚚 寄送到家</el-tag>
+                <el-tag type="warning" size="small" effect="plain">🚚 宅配</el-tag>
               </template>
               <div style="font-size: 12px;">
                 <p><strong>地址：</strong></p>
@@ -150,7 +173,7 @@ onMounted(() => {
           </template>
         </el-table-column>
 
-        <el-table-column label="下單時間" width="160" align="center">
+        <el-table-column label="下單時間" width="130" align="center">
           <template #default="scope">
             <span style="font-size: 12px;">{{ scope.row.createTime?.replace('T', ' ') }}</span>
           </template>
@@ -162,7 +185,7 @@ onMounted(() => {
           </template>
         </el-table-column>
 
-        <el-table-column label="操作" width="200" align="center" fixed="right">
+        <el-table-column label="操作" width="150" align="center" fixed="right">
           <template #default="scope">
             <el-button 
               v-if="scope.row.status === 1" 
