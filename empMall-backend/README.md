@@ -18,7 +18,7 @@
 代碼遵循標準的分層架構 (Layered Architecture)：
 
 ```text
-com.tlias.emp_mall
+com.emp_mall
 ├── config/             # 配置類 (WebSocketConfig, WebConfig, CorsConfig)
 ├── controller/         # 控制層 (處理 HTTP 請求與 WebSocket 訊息)
 ├── service/            # 業務邏輯層 (事務控制, 複雜邏輯)
