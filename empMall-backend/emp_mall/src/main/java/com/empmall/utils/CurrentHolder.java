@@ -17,6 +17,7 @@ public class CurrentHolder {
     public static void setCurrentRole(Integer role){
         roleTL.set(role);
     }
+
     public static Integer getCurrentRole(){
         return roleTL.get();
     }

@@ -35,8 +35,8 @@ public class JwtUtils {
 
         return Jwts.parserBuilder()
                 .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+                .build()    // 生成解析器
+                .parseClaimsJws(token) // 解析 Token
+                .getBody(); // 返回 Claims
     }
 }

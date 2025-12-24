@@ -30,8 +30,9 @@ public class UploadFileUtils {
     private String bucketName;
 
     @Value("${aws.s3.region}")
-    private String regionString; // yml 中填寫 ap-northeast-1
+    private String regionString;
 
+    // S3Client
     private S3Client s3Client;
 
     // 2. 初始化 S3Client (只執行一次，提高效能)
@@ -57,7 +58,7 @@ public class UploadFileUtils {
         }
         String fileName = UUID.randomUUID().toString() + extension;
 
-        // 4. 建立上傳請求
+        // 4.建立上傳請求
         PutObjectRequest request = PutObjectRequest.builder()
                 .bucket(bucketName)
                 .key(fileName)
