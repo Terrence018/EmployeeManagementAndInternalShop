@@ -71,11 +71,9 @@ mvn spring-boot:run
 ### 🔐認證機制 (Authentication)
 本系統採取 雙重防護機制：
 
-1. Filter (過濾器)：用於初步請求攔截。
+1. Filter (過濾器)：處理跨域請求 (CORS)、JWT Token 解析與有效性驗證，並將使用者資訊存入 ThreadLocal。
 
-2. Interceptor (攔截器) + JWT：用於精細的權限驗證與 Token 解析。
-
-除了登入 (/login) 與註冊介面外，其餘請求均需在 Header 攜帶 token。
+2. Interceptor（攔截器）：深入 Spring Context，基於 ThreadLocal 中的角色資訊進行 RBAC 權限控管，攔截越權操作。
 
 ### 💬 WebSocket 配置
 Endpoint: /ws (前端連線點)
