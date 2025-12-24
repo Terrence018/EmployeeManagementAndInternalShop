@@ -70,6 +70,7 @@ com.empmall
 ├── utils/              # 工具類 (JwtUtils, CurrentHolder、UploadFileUtils)
 └── EmpMallWebManagementApplication  # 啟動類
 
+前端
 empMall-frontend/
 ├── src/
 │   ├── api/                # 後端 API 串接管理 (Axios)
