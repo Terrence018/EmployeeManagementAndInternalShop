@@ -44,7 +44,7 @@
 
 ### 4. 📊 數據統計與日誌
 * **儀表板**：圖表化顯示銷售趨勢與部門分佈。
-* **雙重日誌**：系統自動記錄關鍵操作 (Operate Log) 與業務(員工、商城)變更日誌，方便管理者隨時檢閱。
+* **雙重日誌**：系統自動記錄關鍵操作 (Operate Log) 與業務(員工Emp Log、商城Product Log)日誌，方便管理者隨時檢閱。
 
 ## 📂 專案結構 (Project Structure)
 
@@ -85,7 +85,7 @@ empMall-frontend/
 │   │   ├── mall/ & order/  # 商城與訂單模組
 │   │   └── stats/          # 數據統計模組
 │   ├── App.vue             # 根組件
-│   └── main.js             # 入口文件 (Pinia, Router 掛載)
+│   └── main.js             # 入口文件
 ├── package.json            # 專案依賴管理
 └── vite.config.js          # Vite 設定檔
 
@@ -107,7 +107,7 @@ empMall-frontend/
 
 3. 修改 application.yml 中的資料庫帳號密碼。
 
-4. 執行 Main 方法啟動 Spring Boot 應用 (預設 Port: 8080)。
+4. 執行 啟動類的 Main 方法啟動 Spring Boot 應用 (預設 Port: 8080)。
 
 ### Step 3: 啟動前端 (Frontend)
 前端有獨立的詳細說明文件，請進入目錄操作：
