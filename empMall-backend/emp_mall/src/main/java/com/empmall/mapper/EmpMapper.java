@@ -58,7 +58,7 @@ public List<Emp> list(EmpQueryParam empQueryParam);
     /**
      * 根據用戶名稱和密碼查詢員工信息
      */
-    @Select("select id, username, name, role, points from emp where username=#{username} and password=#{password}")
+    @Select("select id, username, name, role, points from emp where username=#{username} and password=#{password} and status = 1")
     Emp selectByUsernameAndPassword(Emp emp);
 
     /**

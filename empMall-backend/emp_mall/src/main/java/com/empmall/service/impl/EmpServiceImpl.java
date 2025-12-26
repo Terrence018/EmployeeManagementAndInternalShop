@@ -66,6 +66,7 @@ public class EmpServiceImpl implements EmpService {
         // 1. 補全基礎信息
         emp.setCreateTime(LocalDateTime.now());
         emp.setUpdateTime(LocalDateTime.now());
+        emp.setStatus(1); // 預設狀態為在職
 
         // 設定預設 role、積分
         if (emp.getRole() == null) emp.setRole(2);
@@ -104,10 +105,12 @@ public class EmpServiceImpl implements EmpService {
                 .collect(Collectors.joining(", "));
 
         // 2. 刪除員工基本信息
+        //邏輯刪除(底層 SQL 執行的是 UPDATE status=0)
         empMapper.deleteByIds(ids);
 
         // 3. 刪除員工的工作經歷信息
-        empExprMapper.deleteByEmpIds(ids);
+        //先保留員工的工作經歷紀錄，不進行物理刪除
+        // empExprMapper.deleteByEmpIds(ids);
 
         // 4. 根據刪除數量，動態寫入日誌
         String logContent;
@@ -245,6 +248,7 @@ public class EmpServiceImpl implements EmpService {
      * 輔助方法：比對新舊員工資料，產生變更明細字串
      */
     private String generateDiffLog(Emp oldEmp, Emp newEmp) {
+        if (oldEmp == null) return "無法比對：舊資料為空"; // 加這行防呆
         StringBuilder changes = new StringBuilder();
         
         // 1. 比對姓名

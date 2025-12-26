@@ -33,18 +33,23 @@
         WHERE id = #{id}
     </update>
 
-    <delete id="deleteByIds">
-        delete from emp where id in
+    <update id="deleteByIds">
+        UPDATE emp
+        SET status = 0,
+        update_time = now()
+        WHERE id IN
         <foreach collection="ids" item="id" separator="," open="(" close=")">
             #{id}
         </foreach>
-    </delete>
+    </update>
 
     <select id="list" resultMap="empResultMap">
         select e.*, d.name deptName from emp e left join dept d on e.dept_id =d.id
         <where>
+            e.status = 1
+
             <if test="name != null and name != ''">
-                e.name like concat('%',#{name},'%')
+                and e.name like concat('%',#{name},'%')
             </if>
             <if test="gender != null">
                 and e.gender = #{gender}

@@ -36,4 +36,6 @@ public class Emp {
     private String email; //信箱
     private String code;
 
+    private Integer status; // 狀態 1:在職 0:離職
+
 }
