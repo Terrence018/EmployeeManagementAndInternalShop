@@ -5,7 +5,7 @@ import { Delete, ShoppingCart, ArrowLeft, Location, MapLocation } from '@element
 import { ElMessage, ElMessageBox } from 'element-plus'
 import request from '@/utils/request'
 import { useRouter } from 'vue-router'
-import MapSelector from '@/components/MapSelector.vue' // ✅ 引入地圖元件
+import MapSelector from '@/components/MapSelector.vue' // 引入地圖元件
 
 const router = useRouter()
 const cartList = ref([])
@@ -14,7 +14,7 @@ const selectedItems = ref([])
 
 // 地圖相關
 const mapVisible = ref(false)
-const googleApiKey = 'AIzaSyAdkUQCnemI3Rs04MjfCR3POlDQudUSy_8' // 您的 Key
+const googleApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
 
 // 結帳彈窗相關數據
 const checkoutDialogVisible = ref(false)

@@ -248,7 +248,7 @@ public class EmpServiceImpl implements EmpService {
      * 輔助方法：比對新舊員工資料，產生變更明細字串
      */
     private String generateDiffLog(Emp oldEmp, Emp newEmp) {
-        if (oldEmp == null) return "無法比對：舊資料為空"; // 加這行防呆
+        if (oldEmp == null) return "無法比對：舊資料為空"; // 防呆使用
         StringBuilder changes = new StringBuilder();
         
         // 1. 比對姓名
