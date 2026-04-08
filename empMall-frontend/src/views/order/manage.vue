@@ -134,14 +134,14 @@ onMounted(() => {
           </template>
         </el-table-column>
 
-        <el-table-column label="兌換商品" min-width="150">
+        <el-table-column label="兌換商品" min-width="150" align="center">
           <template #default="scope">
             <div v-if="scope.row.items && scope.row.items.length > 0">
               <div v-for="(item, index) in scope.row.items" :key="index" style="margin-bottom: 5px;">
                 <el-tag 
                   size="small" 
                   type="info" 
-                  style="max-width: 110px; overflow: hidden; text-overflow: ellipsis; vertical-align: middle; display: inline-block;"
+                  style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; vertical-align: middle; display: inline-block;"
                 >
                   {{ item.productName }}
                 </el-tag>

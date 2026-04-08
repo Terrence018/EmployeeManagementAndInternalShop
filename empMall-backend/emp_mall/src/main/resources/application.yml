@@ -3,7 +3,9 @@ spring:
     name: empMall-api
 
   datasource:
-    url: jdbc:mysql://localhost:3306/emp_mall
+    # 使用變數 ${DB_URL}，如果沒有設定變數，預設值會用冒號後面的 localhost
+    # 為了 Docker使用，此處主要依賴外部傳入的 DB_URL
+    url: ${DB_URL:jdbc:mysql://localhost:3306/emp_mall?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true}
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
@@ -26,7 +28,8 @@ spring:
       max-request-size: 100MB
 
 mybatis:
-  mapper-locations: classpath:mapper/*.xml
+#  非必要，因已修正為同包同名
+#  mapper-locations: classpath:mapper/*.xml
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
     map-underscore-to-camel-case: true

@@ -184,7 +184,7 @@ onMounted(() => {
     <div class="toolbar-container">
       <el-input
         v-model="searchQuery"
-        placeholder="🔍 搜尋商品..."
+        placeholder="搜尋商品..."
         class="filter-item search-input"
         clearable
         @clear="handleFilterChange"
@@ -331,12 +331,6 @@ onMounted(() => {
 .product-card {
   margin-bottom: 25px; border-radius: 12px; overflow: hidden; 
   transition: transform 0.3s; border: none; position: relative; background-color: #ffffff; 
-}
-.product-card::after {
-  content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-  background-image: url('@/assets/christmas-border.png'); 
-  background-size: 100% 100%; background-repeat: no-repeat; background-position: center;
-  pointer-events: none; z-index: 10; 
 }
 .product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
 .image-wrapper { width: 100%; height: 200px; overflow: hidden; position: relative; background-color: #f8f8f8; }

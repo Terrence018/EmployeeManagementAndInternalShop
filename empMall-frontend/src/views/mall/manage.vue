@@ -100,7 +100,7 @@ const getList = async () => {
         page: currentPage.value,
         pageSize: pageSize.value,
         keyword: searchQuery.value || null, // 傳送關鍵字
-        category: selectedCategory.value || null // ✅ 傳送分類 ID
+        category: selectedCategory.value || null // 傳送分類 ID
       }
     })
     

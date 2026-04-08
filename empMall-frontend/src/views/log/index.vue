@@ -96,7 +96,7 @@ onMounted(() => {
 <template>
   <div style="padding: 20px;">
     <div style="margin-bottom: 20px;">
-      <h2 style="margin:0;">📜 日誌管理中心</h2>
+      <h2 style="margin:0;">日誌管理中心</h2>
       <span style="color:#999; font-size:14px;">監控系統運行狀況、員工操作與商城變更紀錄</span>
     </div>
 

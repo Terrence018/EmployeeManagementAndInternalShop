@@ -142,7 +142,7 @@ const handleResetPassword = async () => {
       </el-form>
     </div>
 
-    <el-dialog v-model="forgotVisible" title="🔒 重置密碼" width="420px" center append-to-body>
+    <el-dialog v-model="forgotVisible" title="重置密碼" width="420px" center append-to-body>
       <el-form :model="resetForm" label-position="top">
         
         <el-form-item label="註冊信箱">

@@ -195,7 +195,7 @@ onMounted(() => {
       </el-form>
     </div>
 
-    <el-dialog v-model="verifyDialogVisible" title="🔐 安全驗證" width="420px" center>
+    <el-dialog v-model="verifyDialogVisible" title="安全驗證" width="420px" center>
       <div style="text-align: center; margin-bottom: 20px;">
         <p style="color: #606266;">為了保障您的帳號安全，我們需要驗證您的身分。</p>
         <p style="font-size: 13px; color: #909399;">驗證碼將發送至：{{ userInfo.email }}</p>

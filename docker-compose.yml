@@ -1,0 +1,53 @@
+services:
+
+  # 資料庫
+  db:
+    image: mysql:8.0
+    container_name: empmall-db
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: emp_mall
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./empMall-backend/sql/empmall.sql:/docker-entrypoint-initdb.d/empmall.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # 後端
+  backend:
+    build:
+      context: ./empMall-backend/emp_mall
+      dockerfile: Dockerfile
+    container_name: empmall-backend
+    ports:
+      - "8080:8080"
+    environment:
+      DB_URL: jdbc:mysql://db:3306/emp_mall?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      DB_USERNAME: root
+      DB_PASSWORD: ${DB_PASSWORD}
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+      AWS_ACCESS_KEY: ${AWS_ACCESS_KEY}
+      AWS_SECRET_KEY: ${AWS_SECRET_KEY}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # 前端
+  frontend:
+    build:
+      context: ./empMall-frontend
+      dockerfile: Dockerfile
+    container_name: empmall-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  mysql_data:
