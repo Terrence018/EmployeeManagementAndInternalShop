@@ -1,20 +1,20 @@
 # 員工管理與內部商城系統 - 後端服務 (Backend API)
 
-本專案為系統的核心後端服務，基於 **Spring Boot 3.7** 構建，提供 RESTful API 供前端調用，並透過 **WebSocket** 處理即時通訊需求。
+本專案為系統的核心後端服務，基於 **Spring Boot 3.5.7** 構建，提供 RESTful API 供前端調用，並透過 **WebSocket** 處理即時通訊需求。
 
-## 🛠️ 技術細節 (Technical Details)
+## 技術細節 (Technical Details)
 
-* **JDK 版本**: JDK 17+ (推薦)
+* **JDK 版本**: JDK 17
 * **核心框架**: Spring Boot 3.5.7
 * **資料庫**: MySQL 8.0
 * **ORM 框架**: MyBatis
-* **連接池**: Druid / HikariCP
+* **連接池**: HikariCP
 * **即時通訊**: Spring WebSocket (STOMP 協議)
 * **安全驗證**: JWT + Interceptor + Filter
-* **雲端與第三方服務:** **AWS S3(儲存圖片)** 、 **JavaMailSender (Gmail SMTP)**
+* **雲端與第三方服務:** AWS S3(儲存圖片)、JavaMailSender (Gmail SMTP)
 * **工具庫**: Lombok
 
-## 📂 專案結構說明 (Package Structure)
+## 專案結構說明 (Package Structure)
 
 代碼遵循標準的分層架構 (Layered Architecture)：
 
@@ -34,7 +34,7 @@ com.empmall
 └── EmpMallWebManagementApplication  # 啟動類
 ```
 
-## 🚀 環境配置與啟動 (Setup & Run)
+## 環境配置與啟動 (Setup & Run)
 ### 1. 資料庫準備
    在使用本專案前，請務必先導入資料庫結構與數據。
 
@@ -66,16 +66,16 @@ map-underscore-to-camel-case: true # 開啟駝峰命名映射
 ```Bash
 mvn spring-boot:run
 ```
-## 📡 核心功能與端點 (Endpoints)
+## 核心功能與端點 (Endpoints)
 
-### 🔐認證機制 (Authentication)
+### 認證機制 (Authentication)
 本系統採取 雙重防護機制：
 
 1. Filter (過濾器)：處理跨域請求 (CORS)、JWT Token 解析與有效性驗證，並將使用者資訊存入 ThreadLocal。
 
 2. Interceptor（攔截器）：深入 Spring Context，基於 ThreadLocal 中的角色資訊進行 RBAC 權限控管，攔截越權操作。
 
-### 💬 WebSocket 配置
+### WebSocket 配置
 Endpoint: /ws (前端連線點)
 
 協議: STOMP
@@ -84,7 +84,7 @@ Endpoint: /ws (前端連線點)
 
 發送路徑 (Publish): /app/...
 
-### 📦 打包與部署 (Build)
+### 打包與部署 (Build)
 
 ```Bash
 mvn clean package -DskipTests

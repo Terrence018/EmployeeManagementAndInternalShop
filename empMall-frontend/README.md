@@ -2,7 +2,7 @@
 
 這本專案的前端部分，基於 Vue 3 + Vite 構建，旨在提供高效的員工管理與便捷的內部商城體驗。系統整合了數據視覺化、地圖定位以及即時通訊功能。
 
-## 🛠️ 技術棧 (Tech Stack)
+## 技術棧 (Tech Stack)
 
 本專案採用以下關鍵技術進行開發：
 
@@ -15,7 +15,7 @@
 * **地圖功能**: Vue3 Google Map (用於員工或物流定位)
 * **即時通訊**: SockJS + StompJS (用於員工與管理員的 WebSocket 聊天)
 
-## 🚀 快速開始 (Quick Start)
+## 快速開始 (Quick Start)
 
 請按照以下步驟在本地端啟動專案。
 
@@ -51,7 +51,7 @@ npm run dev
 啟動後，終端機將顯示訪問地址（通常為 http://localhost:5173 或 http://localhost:4173，視 Vite 配置而定）。
 
 
-## 📦構建與部署 (Build)
+## 構建與部署 (Build)
 
 當專案開發完成準備部署時，請執行：
 
@@ -63,7 +63,7 @@ npm run build
 npm run preview
 ```
 
-## 🔑 測試帳號 (Demo Accounts)
+## 測試帳號 (Demo Accounts)
 
 為了方便體驗系統功能，系統預設了不同權限的測試帳號：
 
